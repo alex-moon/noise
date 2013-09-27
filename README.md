@@ -18,7 +18,7 @@ Typical user interaction:
     User:  And so on and so forth.
 
 
-Behind the (thin) web app layer that takes input and sends output, the app's split into three modules:
+Behind the (thin) web app layer (`twisted` perhaps?) that takes input and sends output, the app's split into three modules:
 
 2. A word-by-word analyser that links 1-3grams with keywords (noSQL could work here? Some kind of distributed database...)
 3. A fulltext analyser that feeds back into the system
@@ -27,6 +27,9 @@ Behind the (thin) web app layer that takes input and sends output, the app's spl
    - weighted by length of time in top 100 (1000? 10000?)
      - this should account for stopwords too
    - in correlations (need to look up some statistical analysis algorithms)
+
+
+Each of these will be written in a different language.
 
 
 Will it work? Only one way to find out.
