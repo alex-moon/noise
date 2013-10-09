@@ -29,7 +29,10 @@ Behind the (thin) web app layer (`twisted` perhaps?) that takes input and sends 
    - in correlations (need to look up some statistical analysis algorithms)
 
 
-Each of these will be written in a different language.
+Each of these will be written in a different language. All of these connected by RabbitMQ. No? It seems the right way to do things.
+
+
+I intend to learn to write a configurable MQ/Web interface between any two apps in each of these three languages (and `twisted` - bonus for sockets instead of queues)
 
 
 Will it work? Only one way to find out.
