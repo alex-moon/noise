@@ -6,6 +6,13 @@ Codename "Noise"
 **Off the Record**: an excuse to learn `erlang`, `rust` and `go`
 
 
+Mission Statement
+-----------------
+
+As waste by-products have been put to use and made saleable in heavy industry, so too do we believe:
+
+> <big>**Even the trash of Social Media opinion is useful.**</big>
+
 Typical user interaction:
 
 
@@ -18,21 +25,10 @@ Typical user interaction:
     User:  And so on and so forth.
 
 
-Behind the (thin) web app layer (`twisted` perhaps?) that takes input and sends output, the app's split into three modules:
-
-2. A word-by-word analyser that links 1-3grams with keywords (noSQL could work here? Some kind of distributed database...)
-3. A fulltext analyser that feeds back into the system
-4. The system: we're gonna scour the Web for trending keywords
-   - raw counts
-   - weighted by length of time in top 100 (1000? 10000?)
-     - this should account for stopwords too
-   - in correlations (need to look up some statistical analysis algorithms)
+Behind the (thin) Web app layer (`twisted` perhaps?) that takes input and sends output, the app's split into three modules. The precise responsibilities of these modules is, I think, still to be determined, but a rough description of the app runs thus: 
 
 
-Each of these will be written in a different language. All of these connected by RabbitMQ. No? It seems the right way to do things.
+We want to correlate ngrams in a feedback loop which builds a deep semantic lexicon based on social media (perhaps the Web in general). It seems reasonable to expect that underneath the noise there is a voice, the voice of whatever human universal the Web can express - the idea being that the voice being the voice of a machine, it takes a machine to hear it.
 
 
-I intend to learn to write a configurable MQ/Web interface between any two apps in each of these three languages (and `twisted` - bonus for sockets instead of queues)
-
-
-Will it work? Only one way to find out.
+Does this make sense? Three modules, connected by `redis` - preferably with developer-friendly web APIs, at any rate accessible from `twisted` (or whatever we'll use for our Web app). Will it work? Only one way to find out.
