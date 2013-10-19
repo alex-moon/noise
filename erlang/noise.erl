@@ -1,8 +1,8 @@
 -module(noise).
 -export([noise/0]).
 
-
-
 noise() -> 
-    {ok, Client} = eredis:start_link(),
-    {ok, _} = eredis:q(Client, ["LPUSH", "noise", "Here is a test message"]).
+    Consumer = consumer:consumer("noise"),
+    Publisher = publisher:publisher("noise"),
+    consumer:consume(Consumer),
+    [publisher:publish(Publisher, Value) || Value <- ["Oh shit Erlang is speaking to Redis", "Redis is speaking to Go", "you know what this means...", "MAMAAA JUST KILLED A MAN"]].

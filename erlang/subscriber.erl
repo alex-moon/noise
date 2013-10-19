@@ -1,21 +1,20 @@
 -module(subscriber).
 -export([subscriber/1, subscribe/1]).
 
-subscriber(Channel) -> 
+subscriber(Notifier) -> 
     {ok, Client} = eredis_sub:start_link(),
-    {Client, Channel}.
+    {Client, Notifier}.
 
 subscribe(Subscriber) ->
-    {Client, Channel} = Subscriber,
-    Receiver = spawn_link(fun () ->
+    {Client, {Channel, Notify}} = Subscriber,
+    spawn_link(fun () ->
         eredis_sub:controlling_process(Client),
         eredis_sub:subscribe(Client, [Channel]),
-        receiver(Channel)
-    end),
-    {Client, Receiver}.
+        receiver(Notify)
+    end).
 
-receiver(Channel) ->
+receiver(Notify) ->
     receive
-        _ ->
-            io:format("Notify consumer ~p~n", [Channel])
+        Val ->
+            Notify ! Val
     end.
