@@ -11,8 +11,8 @@ type MappedNGram struct {
 }
 
 func sleep_one_second() {
-    one_second, err := time.ParseDuration("1s")
-    if err != nil { panic("Could not parse duration string '1s'") }
+    one_second, err := time.ParseDuration("10s")
+    if err != nil { panic("Could not parse duration string '10s'") }
     time.Sleep(one_second)
 }
 

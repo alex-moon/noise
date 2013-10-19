@@ -20,21 +20,20 @@ func NewDb() Db {
     }
 }
 
-func (db Db) Get(key string, default_value string) {
-    value, err := s.conn.Do("GET", key)
+func (db Db) Get(key string, default_value string) interface{} {
+    value, err := db.conn.Do("GET", key)
     if err == nil {
-        if value == nil {
-            return default_value
-        } else {
+        if value != nil {
             return value
         }
     } else {
         panic(fmt.Sprintf("DB  -  Get error {%s '%s'}: %s", key, default_value, err.Error()))
     }
+    return default_value
 }
 
 func (db Db) Set(key string, value string) {
-    _, err := s.conn.Do("SET", key, value)
+    _, err := db.conn.Do("SET", key, value)
     if err != nil {
         panic(fmt.Sprintf("DB  -  Set error {%s '%s'}: %s", key, value, err.Error()))
     }
