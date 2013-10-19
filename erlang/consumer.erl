@@ -5,13 +5,20 @@ consumer(Channel) ->
     {ok, Client} = eredis:start_link(),
     {Client, Channel}.
 
-notifier(Consumer) ->
+receiver(Consumer) ->
     {Client, Channel} = Consumer,
-    {Channel, spawn(receive
+    receive
         _ -> 
             io:format("Notified! (~p)~n", [Channel]),
             {ok, Message} = eredis:q(Client, ["RPOP", Channel]),
-            io:format("Received ~p~n", [Message])
+            io:format("Received ~p~n", [Message]),
+            receiver(Consumer)
+    end.
+
+notifier(Consumer) ->
+    {_, Channel} = Consumer,
+    {Channel, spawn_link(fun() ->
+        receiver(Consumer)
     end)}.
 
 consume(Consumer) ->
