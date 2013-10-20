@@ -16,5 +16,6 @@ subscribe(Subscriber) ->
 receiver(Notify) ->
     receive
         Val ->
-            Notify ! Val
+            Notify ! Val,
+            receiver(Notify)
     end.
