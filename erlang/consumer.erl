@@ -11,23 +11,22 @@ rpop_loop(Consumer) ->
     case Message of
         undefined -> undefined;
         _ ->
-          io:format("Received ~p~n", [Message]),
+          io:format("Popped ~p~n", [Message]),
           rpop_loop(Consumer)
     end.
 
-receiver(Consumer) ->
-    %% {Client, Channel} = Consumer,
+consumer_receiver(Consumer) ->
     receive
-        _ -> 
-            %% io:format("Notified! (~p)~n", [Channel]),
+        Val ->
+            io:format("Notified: ~p~n", [Val]),
             rpop_loop(Consumer),
-            receiver(Consumer)
+            consumer_receiver(Consumer)
     end.
 
 notifier(Consumer) ->
     {_, Channel} = Consumer,
-    {Channel, spawn(fun() ->
-        receiver(Consumer)
+    {Channel, spawn_link(fun() ->
+        consumer_receiver(Consumer)
     end)}.
 
 consume(Consumer) ->

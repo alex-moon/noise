@@ -6,16 +6,25 @@ subscriber(Notifier) ->
     {Client, Notifier}.
 
 subscribe(Subscriber) ->
-    {Client, {Channel, Notify}} = Subscriber,
-    spawn_link(fun () ->
+    io:format("Subscribing: ~p~n", [Subscriber]),
+    {Client, {Channel, _}} = Subscriber,
+    process_flag(trap_exit, true),
+    spawn_link(fun() ->
         eredis_sub:controlling_process(Client),
         eredis_sub:subscribe(Client, [Channel]),
-        receiver(Notify)
+        subscriber_receiver(Subscriber)
     end).
 
-receiver(Notify) ->
+subscriber_receiver(Subscriber) ->
+    {_, {_, Notify}} = Subscriber,
     receive
+        {'EXIT', _, _} ->
+            io:format("Our Redis connection has died! Restarting...~n"),
+            Notify ! "LOL Redis connection died",
+            subscribe(Subscriber);
         Val ->
+            io:format("Subscriber received val ~p~n", [Val]),
             Notify ! Val,
-            receiver(Notify)
+            subscriber_receiver(Subscriber),
+            io:format("Ended (should never happen)~n")
     end.
