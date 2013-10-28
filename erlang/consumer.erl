@@ -15,19 +15,20 @@ rpop_loop(Consumer) ->
           rpop_loop(Consumer)
     end.
 
-consumer_receiver(Consumer) ->
+notify_receiver(Consumer) ->
     receive
         Val ->
             io:format("Notified: ~p~n", [Val]),
             rpop_loop(Consumer),
-            consumer_receiver(Consumer)
+            notify_receiver(Consumer)
     end.
 
 notifier(Consumer) ->
     {_, Channel} = Consumer,
-    {Channel, spawn_link(fun() ->
-        consumer_receiver(Consumer)
-    end)}.
+    NotifyReceiver = spawn_link(fun() ->
+        notify_receiver(Consumer)
+    end),
+    {Channel, NotifyReceiver}.
 
 consume(Consumer) ->
     Notifier = notifier(Consumer),

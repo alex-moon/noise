@@ -16,15 +16,15 @@ subscribe(Subscriber) ->
     end).
 
 subscriber_receiver(Subscriber) ->
-    {_, {_, Notify}} = Subscriber,
+    {Client, {Channel, NotifyReceiver}} = Subscriber,
     receive
         {'EXIT', _, _} ->
             io:format("Our Redis connection has died! Restarting...~n"),
-            Notify ! "LOL Redis connection died",
+            NotifyReceiver ! "LOL Redis connection died",
             subscribe(Subscriber);
         Val ->
-            io:format("Subscriber received val ~p~n", [Val]),
-            Notify ! Val,
-            subscriber_receiver(Subscriber),
-            io:format("Ended (should never happen)~n")
+            io:format("Subscriber for ~p received val ~p~n", [Channel, Val]),
+            NotifyReceiver ! Val,
+            eredis_sub:ack_message(Client),
+            subscriber_receiver(Subscriber)
     end.
