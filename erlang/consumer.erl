@@ -11,14 +11,13 @@ rpop_loop(Consumer) ->
     case Message of
         undefined -> undefined;
         _ ->
-          io:format("Popped ~p~n", [Message]),
+          io:format("~p~n", [Message]),
           rpop_loop(Consumer)
     end.
 
 notify_receiver(Consumer) ->
     receive
-        Val ->
-            io:format("Notified: ~p~n", [Val]),
+        _ ->
             rpop_loop(Consumer),
             notify_receiver(Consumer)
     end.
@@ -30,7 +29,23 @@ notifier(Consumer) ->
     end),
     {Channel, NotifyReceiver}.
 
+supervise(Subscriber, Consumer) ->
+    {Client, _} = Subscriber,
+    subscriber:subscribe(Subscriber, self()),
+    receive
+        {'EXIT', _, _} ->
+            case is_process_alive(Client) of
+                true ->
+                    supervise(Subscriber, Consumer);
+                false ->
+                    consume(Consumer)
+            end;
+        Val ->
+            io:format("SUPERVISOR: Expected EXIT but got ~p instead~n", [Val])
+    end.
+
 consume(Consumer) ->
     Notifier = notifier(Consumer),
     Subscriber = subscriber:subscriber(Notifier),
-    subscriber:subscribe(Subscriber).
+    process_flag(trap_exit, true),
+    supervise(Subscriber, Consumer).
