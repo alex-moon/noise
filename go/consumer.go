@@ -34,7 +34,7 @@ func (c Consumer) Consume() {
         for {
             v, err := c.conn.Do("RPOP", c.channel)
             if err == nil && v != nil {
-                fmt.Printf("\nCONSUMER  -  Successfully Processed Message: %s\n\n", v)
+                fmt.Printf("%s\n", v)
             } else {
                 if err != nil {
                     panic(fmt.Sprintf("CONSUMER  -  Error: %s\n", err.Error()))

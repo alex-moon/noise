@@ -11,7 +11,7 @@ rpop_loop(Consumer) ->
     case Message of
         undefined -> undefined;
         _ ->
-          io:format("~p~n", [Message]),
+          io:format("~p~n", [binary_to_list(Message)]),
           rpop_loop(Consumer)
     end.
 
