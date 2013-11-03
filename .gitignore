@@ -1,1 +1,6 @@
+scala/.*
+scala/scala-redis
+scala/target
 erlang/*.beam
+*~
+notes.txt
