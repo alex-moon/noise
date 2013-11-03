@@ -1,5 +1,3 @@
-import scala.actors._
-import scala.actors.Actor._
 import com.redis._
 
 object Noise {

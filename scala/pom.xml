@@ -32,6 +32,12 @@
 		</dependency>  
 	</dependencies>
     <build>
+	 <resources>
+	 	<resource>
+	 		<directory>src/main/resources</directory>
+	 		<filtering>true</filtering>
+	 	</resource>
+	 </resources>
         <plugins>
             <plugin>
                 <groupId>org.scala-tools</groupId>
@@ -45,7 +51,16 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <sourceDir>src</sourceDir>
+				  <launchers>
+				    <launcher>
+				      <id>noise</id>
+				      <mainClass>Noise</mainClass>
+				      <args>
+				        <arg>${basedir}</arg>
+				      </args>
+				    </launcher>
+				  </launchers>
+                    <sourceDir>src/main/scala</sourceDir>
                     <jvmArgs>
                         <jvmArg>-Xms64m</jvmArg>
                         <jvmArg>-Xmx1024m</jvmArg>
@@ -55,7 +70,7 @@
 			      </descriptorRefs>
 			      <archive>
 			        <manifest>
-			          <mainClass>noise.Noise</mainClass>
+			          <mainClass>com.github.alex_moon.noise.Noise</mainClass>
 			        </manifest>
 			      </archive>
                 </configuration>
