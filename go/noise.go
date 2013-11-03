@@ -36,7 +36,7 @@ func main() {
     messages := [4]string{"Here am a message", "Here's another message", "And here's one last one", "Just kidding here's a fourth one lol"}
     
     for _, v := range messages {
-        p.Publish("noise", v)
+        p.Publish(v)
     }
 
     sleep_forever()

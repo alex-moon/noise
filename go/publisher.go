@@ -22,7 +22,7 @@ func NewPublisher(channel string) Publisher {
     }
 }
 
-func (p Publisher) Publish(channel string, value string) {
-    p.conn.Do("LPUSH", channel, value)
-    p.conn.Do("PUBLISH", channel, 1)
+func (p Publisher) Publish(value string) {
+    p.conn.Do("LPUSH", p.channel, value)
+    p.conn.Do("PUBLISH", p.channel, 1)
 }
