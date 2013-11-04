@@ -1,8 +1,10 @@
 package main
 
+
 import (
     "fmt"
     "time"
+    "github.com/alex-moon/gostat/stat"
 )
 
 type MappedNGram struct {
@@ -28,6 +30,8 @@ func start_pinging(value []byte) {
 }
 
 func main() {
+    fmt.Printf("STAT DEBUG %s\n", stat.Binomial_PMF(0.09, 9)(8))
+
     c := NewConsumer("noise")
     p := NewPublisher("noise")
 
