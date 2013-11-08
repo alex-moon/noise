@@ -1,10 +1,8 @@
 package main
 
-
 import (
-    "fmt"
-    "time"
-    "github.com/alex-moon/gostat/stat"
+    // "github.com/alex-moon/gostat/stat"
+    // we can prove this is imported thus: fmt.Printf("STAT DEBUG %s\n", stat.Binomial_PMF(0.09, 9)(8))
 )
 
 type MappedNGram struct {
@@ -12,36 +10,13 @@ type MappedNGram struct {
     value string
 }
 
-func sleep_one_second() {
-    one_second, err := time.ParseDuration("1s")
-    if err != nil { panic("Could not parse duration string '1s'") }
-    time.Sleep(one_second)
-}
-
-func sleep_forever() {
-    for { sleep_one_second() }
-}
-
-func start_pinging(value []byte) {
-    for {
-        fmt.Printf("%s...\n", value)
-        sleep_one_second()
-    }
-}
-
 func main() {
-    fmt.Printf("STAT DEBUG %s\n", stat.Binomial_PMF(0.09, 9)(8))
-
     c := NewConsumer("noise")
-    p := NewPublisher("noise")
 
     go c.Consume()
 
-    messages := [4]string{"Here am a message", "Here's another message", "And here's one last one", "Just kidding here's a fourth one lol"}
-    
-    for _, v := range messages {
-        p.Publish(v)
-    }
+    p := NewPublisher("noise")  // on the "noise" list...
+    p.Publish("aee02730-47e7-11e3-8f96-0800200c9a66")  // ...the text with this ID is available for processing
 
-    sleep_forever()
+    for {}
 }

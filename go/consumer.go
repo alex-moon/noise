@@ -32,9 +32,16 @@ func (c Consumer) Consume() {
 
     for {
         for {
-            v, err := c.conn.Do("RPOP", c.channel)
-            if err == nil && v != nil {
-                fmt.Printf("%s\n", v)
+            text_uuid, err := c.conn.Do("RPOP", c.channel)
+            if err == nil && text_uuid != nil {
+                uuid, ok := text_uuid.([]byte)
+                if ok {
+                    reader := NewReader(string(uuid))
+                    term_counter := NewTermCounter(reader)
+                    go term_counter.Run()
+                } else {
+                    panic(fmt.Sprintf("CONSUMER - Can't decode string %s\n", uuid))
+                }
             } else {
                 if err != nil {
                     panic(fmt.Sprintf("CONSUMER  -  Error: %s\n", err.Error()))

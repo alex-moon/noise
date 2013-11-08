@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "strconv"
     "github.com/garyburd/redigo/redis"
 )
 
@@ -28,9 +29,13 @@ func (s Subscriber) Subscribe() {
     s.conn.Do("SUBSCRIBE", s.channel)
 
     for {
-        _, err := s.conn.Receive()
+        msg, err := s.conn.Receive()
         if err == nil {
-            s.notifier <- 1
+            msg, ok := msg.(string)
+            if !ok { panic(msg) }
+            number_of_texts, err := strconv.Atoi(msg)
+            if err != nil { panic(err) }
+            s.notifier <- number_of_texts
         } else {
             panic(fmt.Sprintf("SUBSCRIBER %s %s  -  Receive error: %s", s.channel, s.notifier, err.Error()))
         }
