@@ -8,29 +8,40 @@ import (
 )
 
 type TermCounter struct {
-    reader Reader
     conn redis.Conn
+    text TextReader
 }
 
-func NewTermCounter(reader Reader) TermCounter {
-    conn, err := redis.Dial("tcp", ":6379")
+func NewTermCounter(text TextReader) TermCounter {
+    fmt.Printf("New Term Counter with text %s\n", text)
+
+    c, err := redis.Dial("tcp", ":6379")
     if err != nil {
-        panic(fmt.Sprintf("WORD COUNTER %s  -  Could not connect to Redis", reader.text_id))
+        panic(fmt.Sprintf("WORD COUNTER %s  -  Could not connect to Redis", text.Uuid()))
     }
-    return TermCounter{reader, conn}
+
+    fmt.Printf("About to return Term Counter\n")
+    return TermCounter{c, text}
 }
 
 func (c TermCounter) Run() {
     pattern, err := regexp.Compile("[\\W]+")
     if err != nil { panic(err) }
 
-    text_content_slug := string(pattern.ReplaceAll(c.reader.ReadAll(), []byte(" ")))
+    fmt.Printf("We have a pattern %s\n", pattern)
+
+    text_content_slug := string(pattern.ReplaceAll(c.text.Bytes(), []byte(" ")))
+
+    fmt.Printf("We have a pattern replace %s\n", text_content_slug)
+    
     text_content_slug = strings.ToLower(text_content_slug)
+
+    fmt.Printf("We have a slug %s\n", text_content_slug)
 
     words := strings.Split(text_content_slug, " ")
 
     for _, word := range words {
-        fmt.Printf("%s-%s\n", c.reader.text_id, word)
-        c.conn.Do("ZINCRBY", c.reader.text_id, 1, word)
+        fmt.Printf("%s-%s\n", c.text.Uuid(), word)
+        c.conn.Do("ZINCRBY", c.text.Uuid(), 1, word)
     }
 }

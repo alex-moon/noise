@@ -15,8 +15,8 @@ func main() {
 
     go c.Consume()
 
-    p := NewPublisher("noise")  // on the "noise" list...
-    p.Publish("aee02730-47e7-11e3-8f96-0800200c9a66")  // ...the text with this ID is available for processing
+    p := NewPublisher("noise")
+    p.Publish("1")  // 1 new text is available for processing
 
     for {}
 }

@@ -30,24 +30,13 @@ func NewConsumer(channel string) Consumer {
 func (c Consumer) Consume() {
     go c.subscriber.Subscribe()
 
+    reader := NewReader()
+
     for {
-        for {
-            text_uuid, err := c.conn.Do("RPOP", c.channel)
-            if err == nil && text_uuid != nil {
-                uuid, ok := text_uuid.([]byte)
-                if ok {
-                    reader := NewReader(string(uuid))
-                    term_counter := NewTermCounter(reader)
-                    go term_counter.Run()
-                } else {
-                    panic(fmt.Sprintf("CONSUMER - Can't decode string %s\n", uuid))
-                }
-            } else {
-                if err != nil {
-                    panic(fmt.Sprintf("CONSUMER  -  Error: %s\n", err.Error()))
-                }
-                break
-            }
+        for text := range reader.texts {
+            term_counter := NewTermCounter(text)
+            fmt.Printf("About to run term counter!\n")
+            go term_counter.Run()
         }
         <- c.subscriber.notifier
     }
