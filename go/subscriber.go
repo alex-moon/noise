@@ -30,10 +30,15 @@ func (s Subscriber) Subscribe() {
 
     for {
         msg, err := s.conn.Receive()
+        fmt.Printf("Subscriber received %s\n", msg.data)
         if err == nil {
-            msg, ok := msg.(string)
-            if !ok { panic(msg) }
-            number_of_texts, err := strconv.Atoi(msg)
+            msg_data, ok := msg.data.(string)
+            if !ok { 
+                // panic(fmt.Sprintf("SUBSCRIBER %s %s - could not decode message %s\n", s.channel, s.notifier, msg))
+                fmt.Printf("Subscriber received non-string %s\n", msg.data)
+                continue
+            }
+            number_of_texts, err := strconv.Atoi(msg_data)
             if err != nil { panic(err) }
             s.notifier <- number_of_texts
         } else {

@@ -12,11 +12,10 @@ type MappedNGram struct {
 
 func main() {
     c := NewConsumer("noise")
-
     go c.Consume()
 
     p := NewPublisher("noise")
     p.Publish("1")  // 1 new text is available for processing
 
-    for {}
+    select {}
 }

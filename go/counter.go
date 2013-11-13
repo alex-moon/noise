@@ -28,20 +28,13 @@ func (c TermCounter) Run() {
     pattern, err := regexp.Compile("[\\W]+")
     if err != nil { panic(err) }
 
-    fmt.Printf("We have a pattern %s\n", pattern)
-
-    text_content_slug := string(pattern.ReplaceAll(c.text.Bytes(), []byte(" ")))
-
-    fmt.Printf("We have a pattern replace %s\n", text_content_slug)
-    
-    text_content_slug = strings.ToLower(text_content_slug)
-
-    fmt.Printf("We have a slug %s\n", text_content_slug)
-
-    words := strings.Split(text_content_slug, " ")
+    text_content := strings.ToLower( string( pattern.ReplaceAll(c.text.Bytes(), []byte(" ")) ) )
+    words := strings.Split(text_content, " ")
 
     for _, word := range words {
-        fmt.Printf("%s-%s\n", c.text.Uuid(), word)
-        c.conn.Do("ZINCRBY", c.text.Uuid(), 1, word)
+        if word != "" {
+            fmt.Printf("%s-%s\n", c.text.Uuid(), word)
+            c.conn.Do("ZINCRBY", c.text.Uuid(), 1, word)
+        }
     }
 }

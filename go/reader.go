@@ -1,7 +1,6 @@
  package main
 
 import (
-    "fmt"
     "io/ioutil"
 )
 
@@ -26,7 +25,6 @@ func (text fsTextReader) Uuid() string {
 }
 
 func (text fsTextReader) Bytes() []byte {
-    fmt.Printf("Bytes() called!\n")
     filepath := Config().Text.Dir + "/" + text.Uuid()
     file_contents, err := ioutil.ReadFile(filepath)
     if err != nil { panic(err) }

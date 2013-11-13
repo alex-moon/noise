@@ -29,13 +29,11 @@ func NewConsumer(channel string) Consumer {
 
 func (c Consumer) Consume() {
     go c.subscriber.Subscribe()
-
     reader := NewReader()
 
     for {
         for text := range reader.texts {
             term_counter := NewTermCounter(text)
-            fmt.Printf("About to run term counter!\n")
             go term_counter.Run()
         }
         <- c.subscriber.notifier
