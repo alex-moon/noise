@@ -32,7 +32,7 @@ func (c Consumer) Consume() {
     reader := NewReader()
 
     for {
-        for text := Range(reader.texts) {
+        for text := range reader.texts {
             term_counter := NewTermCounter(text)
             go term_counter.Run()
         }
