@@ -29,10 +29,11 @@ func NewConsumer(channel string) Consumer {
 
 func (c Consumer) Consume() {
     go c.subscriber.Subscribe()
-    reader := NewReader()
 
     for {
+        reader := NewReader()
         for text := range reader.texts {
+            if text == nil { break }
             term_counter := NewTermCounter(text)
             go term_counter.Run()
         }

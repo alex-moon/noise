@@ -40,6 +40,7 @@ func fsReader() Reader {
             uuid := filestat.Name()
             texts <- fsTextReader{string(uuid)}
         }
+        texts <- nil
     } ()
     return Reader{texts}
 }

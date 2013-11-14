@@ -13,14 +13,10 @@ type TermCounter struct {
 }
 
 func NewTermCounter(text TextReader) TermCounter {
-    fmt.Printf("New Term Counter with text %s\n", text)
-
     c, err := redis.Dial("tcp", ":6379")
     if err != nil {
         panic(fmt.Sprintf("WORD COUNTER %s  -  Could not connect to Redis", text.Uuid()))
     }
-
-    fmt.Printf("About to return Term Counter\n")
     return TermCounter{c, text}
 }
 
