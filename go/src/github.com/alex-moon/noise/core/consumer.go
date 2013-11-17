@@ -27,13 +27,14 @@ func NewConsumer(channel string) Consumer {
     }
 }
 
-func (c Consumer) Consume(new_iterator func() chan interface{}, work func(interface{})) {
+func (c Consumer) Consume(processor Processor) {
     go c.subscriber.Subscribe()
 
     for {
-        iterator := new_iterator()
+        iterator := processor.NewIterator()
         for item := range iterator {
             if item == nil { break }
+            work := processor.NewWorker()
             go work(item)
         }
         /* WAS:

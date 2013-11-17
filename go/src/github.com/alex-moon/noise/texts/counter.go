@@ -41,10 +41,3 @@ func (c TermCounter) Run(publisher core.Publisher) {
     // TODO is this the right place to put this? Surely every worker is going to do a publisher.Publish...
     publisher.Publish(c.text.Uuid())
 }
-
-func NewWorker(publisher core.Publisher) func(TextReader) {
-    return func(text TextReader) {
-        counter := NewTermCounter(text)
-        counter.Run(publisher)
-    }
-}

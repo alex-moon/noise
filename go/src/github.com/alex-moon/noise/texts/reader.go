@@ -60,8 +60,3 @@ func NewReader() Reader {
     // @todo read config for type of reader (Redis vs SQL vs Mongo vs Solr vs FS vs RSS vs REST vs scraping vs whatever)
     return fsReader()
 }
-
-func NewIterator() chan TextReader {
-    reader := NewReader()
-    return reader.texts
-}
