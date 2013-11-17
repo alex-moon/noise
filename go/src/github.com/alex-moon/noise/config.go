@@ -5,8 +5,20 @@ import (
 )
 
 type config struct {
-    Text struct {
-        Dir string
+    Files struct {
+        Texts string
+    }
+
+    Lists struct {
+        Texts string
+        Terms string
+        Facts string
+    }
+
+    PubSubs struct {
+        Texts string
+        Terms string
+        Facts string
     }
 }
 

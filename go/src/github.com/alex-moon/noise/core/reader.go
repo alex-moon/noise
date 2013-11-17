@@ -25,14 +25,14 @@ func (text fsTextReader) Uuid() string {
 }
 
 func (text fsTextReader) Bytes() []byte {
-    filepath := Config().Text.Dir + "/" + text.Uuid()
+    filepath := Config().Files.Texts + "/" + text.Uuid()
     file_contents, err := ioutil.ReadFile(filepath)
     if err != nil { panic(err) }
     return file_contents
 }
 
 func fsReader() Reader {
-    text_files, err := ioutil.ReadDir(Config().Text.Dir)
+    text_files, err := ioutil.ReadDir(Config().Files.Texts)
     if err != nil { panic(err) }
     texts := make(chan TextReader)
     go func () {

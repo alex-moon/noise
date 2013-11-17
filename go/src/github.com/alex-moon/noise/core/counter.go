@@ -29,8 +29,12 @@ func (c TermCounter) Run() {
 
     for _, word := range words {
         if word != "" {
-            fmt.Printf("%s-%s\n", c.text.Uuid(), word)
+            // fmt.Printf("%s-%s\n", c.text.Uuid(), word)
             c.conn.Do("ZINCRBY", c.text.Uuid(), 1, word)
         }
     }
+
+    // TODO extract these into another module - QueueHandler or something
+    c.conn.Do("RPUSH", Config().Lists.Texts, c.text.Uuid())
+    c.conn.Do("PUBLISH", Config().PubSubs.Texts, 1)
 }

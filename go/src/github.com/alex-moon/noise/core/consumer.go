@@ -20,7 +20,7 @@ func NewConsumer(channel string) Consumer {
     notifier := make(chan int)
     subscriber := NewSubscriber(channel, notifier)
 
-    return Consumer{
+    return Consumer {
         conn: c,
         channel: channel,
         subscriber: subscriber,
