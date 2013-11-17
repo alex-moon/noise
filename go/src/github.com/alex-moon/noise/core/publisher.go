@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
     "fmt"
@@ -11,12 +11,12 @@ type Publisher struct {
 }
 
 func NewPublisher(channel string) Publisher {
-    c, err := redis.Dial("tcp", ":6379")
+    c, err := redis.Dial("tcp", Config().Redis.Address)
     if err != nil {
         panic(fmt.Sprintf("PUBLISHER %s  -  Could not connect to Redis", channel))
     }
 
-    return Publisher{
+    return Publisher {
         conn: c,
         channel: channel,
     }

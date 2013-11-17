@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
     "fmt"
@@ -13,12 +13,12 @@ type Subscriber struct {
 }
 
 func NewSubscriber(channel string, notifier chan int) Subscriber {
-    c, err := redis.Dial("tcp", ":6379")
+    c, err := redis.Dial("tcp", Config().Redis.Address)
     if err != nil {
         panic(fmt.Sprintf("SUBSCRIBER %s %s  -  Could not connect to Redis", channel, notifier))
     }
 
-    return Subscriber{
+    return Subscriber {
         conn: c,
         channel: channel,
         notifier: notifier,

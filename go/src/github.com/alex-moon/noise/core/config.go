@@ -1,21 +1,19 @@
-package main
+package core
 
 import (
     "code.google.com/p/gcfg"
 )
 
 type config struct {
+    Redis struct {
+        Address string
+    }
+
     Files struct {
         Texts string
     }
 
-    Lists struct {
-        Texts string
-        Terms string
-        Facts string
-    }
-
-    PubSubs struct {
+    Queues struct {
         Texts string
         Terms string
         Facts string
