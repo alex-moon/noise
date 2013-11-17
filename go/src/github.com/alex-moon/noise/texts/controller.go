@@ -8,20 +8,17 @@ type TextProcessor struct {
     publisher core.Publisher
 }
 
-func (p TextProcessor) NewWorker() func(TextReader) {
-    return func(text TextReader) {
-        counter := NewTermCounter(text)
-        counter.Run(p.publisher)
+func (p TextProcessor) Process() {
+    reader := NewReader()
+    for text := range reader.texts {
+        if text == nil { break }
+        term_counter := NewTermCounter(text)
+        go term_counter.Run(p.publisher)
     }
 }
 
-func (p TextProcessor) NewIterator() chan TextReader {
-    reader := NewReader()
-    return reader.texts
-}
-
 // TODO noun-named method should return something
-func TextsController() {
+func Texts() {
     consumer := core.NewConsumer(core.Config().Queues.Texts)
     publisher := core.NewPublisher(core.Config().Queues.Terms)
     processor := TextProcessor {publisher}

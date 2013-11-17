@@ -31,20 +31,7 @@ func (c Consumer) Consume(processor Processor) {
     go c.subscriber.Subscribe()
 
     for {
-        iterator := processor.NewIterator()
-        for item := range iterator {
-            if item == nil { break }
-            work := processor.NewWorker()
-            go work(item)
-        }
-        /* WAS:
-        reader := NewReader()
-        for text := range reader.texts {
-            if text == nil { break }
-            term_counter := NewTermCounter(text)
-            go term_counter.Run()
-        }
-        */
+        go processor.Process()
         <- c.subscriber.notifier
     }
 }
