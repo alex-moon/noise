@@ -11,5 +11,6 @@ type MappedNGram struct {
 
 func main() {
     texts.Texts()
+    terms.Terms()
     select {}
 }

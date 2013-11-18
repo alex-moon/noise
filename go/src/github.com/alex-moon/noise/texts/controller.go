@@ -9,15 +9,21 @@ type TextProcessor struct {
 }
 
 func (p TextProcessor) Process() {
-    reader := NewReader()
-    for text := range reader.texts {
-        if text == nil { break }
-        term_counter := NewTermCounter(text)
+    var text_dir string = core.Config().Files.Texts
+
+    // TODO: make configurable - filesystem as opposed to redis/SQL/RSS/whatever
+    iterator := NewFileSystemIterator(text_dir)
+    for uuid := range iterator.Items() {
+        if uuid == nil { break }
+
+        // TODO: ditto
+        reader := NewFileSystemReader(text_dir, uuid)
+        term_counter := NewTermCounter(reader)
         go term_counter.Run(p.publisher)
     }
 }
 
-// TODO noun-named method should return something
+// TODO I'm not convinced by this naming scheme...
 func Texts() {
     consumer := core.NewConsumer(core.Config().Queues.Texts)
     publisher := core.NewPublisher(core.Config().Queues.Terms)

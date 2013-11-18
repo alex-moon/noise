@@ -5,58 +5,26 @@ import (
     "github.com/alex-moon/noise/core"
 )
 
-// range chan as per https://sites.google.com/site/gopatterns/object-oriented/iterators
-type Reader struct {
-    texts chan TextReader
-}
-
-type TextReader interface {
-    Uuid() string
+type Reader interface {
     Bytes() []byte
+    Uuid() string
 }
 
-
-// FILESYSTEM
-type fsTextReader struct {
+type FileSystemReader struct {
+    text_dir string
     uuid string
 }
 
-func (text fsTextReader) Uuid() string {
-    return text.uuid
+func NewFileSystemReader(text_dir, uuid) FileSystemReader {
+    return FileSystemReader{text_dir, uuid}
 }
 
-func (text fsTextReader) Bytes() []byte {
-    filepath := core.Config().Files.Texts + "/" + text.Uuid()
-    file_contents, err := ioutil.ReadFile(filepath)
+func (r FileSystemReader) Bytes() []byte {
+    file_contents, err := ioutil.ReadFile(r.text_dir + "/" + r.uuid)
     if err != nil { panic(err) }
     return file_contents
 }
 
-func fsReader() Reader {
-    text_files, err := ioutil.ReadDir(core.Config().Files.Texts)
-    if err != nil { panic(err) }
-    texts := make(chan TextReader)
-    go func () {
-        for _, filestat := range text_files {
-            uuid := filestat.Name()
-            texts <- fsTextReader{string(uuid)}
-        }
-        texts <- nil
-    } ()
-    return Reader{texts}
-}
-
-
-// REDIS
-/*
-            text_uuid, err := c.conn.Do("RPOP", c.channel)
-            if err == nil && text_uuid != nil {
-                uuid, ok := text_uuid.([]byte)
-                if ok {
-                    string(uuid)
-*/
-
-func NewReader() Reader {
-    // @todo read config for type of reader (Redis vs SQL vs Mongo vs Solr vs FS vs RSS vs REST vs scraping vs whatever)
-    return fsReader()
+func (r FileSystemReader) Uuid() string {
+    return r.uuid
 }
