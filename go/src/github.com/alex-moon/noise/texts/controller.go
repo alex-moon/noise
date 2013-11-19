@@ -12,12 +12,12 @@ func (p TextProcessor) Process() {
     var text_dir string = core.Config().Files.Texts
 
     // TODO: make configurable - filesystem as opposed to redis/SQL/RSS/whatever
-    iterator := NewFileSystemIterator(text_dir)
+    iterator := core.NewFileSystemIterator(text_dir)
     for uuid := range iterator.Items() {
         if uuid == nil { break }
 
         // TODO: ditto
-        reader := NewFileSystemReader(text_dir, uuid)
+        reader := NewFileSystemReader(text_dir, string(uuid.(string)))
         term_counter := NewTermCounter(reader)
         go term_counter.Run(p.publisher)
     }

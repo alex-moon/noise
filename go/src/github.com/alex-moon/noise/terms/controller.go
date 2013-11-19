@@ -10,10 +10,10 @@ type TermProcessor struct {
 
 func (p TermProcessor) Process() {
     iterator := core.NewQueueIterator(core.Config().Queues.Terms)
-    for uuid := range iterator.items {
+    for uuid := range iterator.Items() {
         if uuid == nil { break }
-        term_iterator := core.NewSetIterator(uuid)
-        term_correlator := NewTermCorrelator(term_iterator)  // TODO: ZRANGE over terms and generate SDs, means, etc. - this is a bit more complex
+        term_iterator := core.NewSetIterator(string(uuid.([]byte)), core.SET_RANK_ITERATOR)
+        term_correlator := NewTermCorrelator(term_iterator)
         go term_correlator.Run(p.publisher)
     }
 }

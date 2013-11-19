@@ -10,10 +10,10 @@ import (
 
 type TermCounter struct {
     conn redis.Conn
-    text core.Reader
+    text Reader
 }
 
-func NewTermCounter(text core.Reader) TermCounter {
+func NewTermCounter(text Reader) TermCounter {
     c, err := redis.Dial("tcp", core.Config().Redis.Address)
     if err != nil {
         panic(fmt.Sprintf("WORD COUNTER %s  -  Could not connect to Redis", text.Uuid()))

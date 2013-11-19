@@ -1,12 +1,19 @@
 package core
 
 import (
+    "fmt"
+    "strconv"
     "io/ioutil"
     "github.com/garyburd/redigo/redis"
 )
 
+const SET_SCORE_ITERATOR int = 1
+const SET_RANK_ITERATOR int = 2
+
+type Item interface {}
+
 type Iterator interface {
-    Items() chan string
+    Items() chan Item
 }
 
 
@@ -29,12 +36,13 @@ func NewQueueIterator(channel string) QueueIterator {
     }
 }
 
-func (i QueueIterator) Items() chan string {
-    items := make(chan string)
+func (i QueueIterator) Items() chan Item {
+    items := make(chan Item)
     go func() {
-        for item, err := i.conn.Do("RPOP", i.channel) {
+        for {
+            item, err := i.conn.Do("RPOP", i.channel)
             if err == nil && item != nil {
-                items <- string(item)
+                items <- item
             } else {
                 if err != nil {
                     panic(fmt.Sprintf("QUEUE ITERATOR %s  -  RPOP error from Redis: %s", i.channel, err.Error()))
@@ -43,7 +51,7 @@ func (i QueueIterator) Items() chan string {
                 break
             }
         }
-    }
+    }()
     return items
 }
 
@@ -53,36 +61,63 @@ func (i QueueIterator) Items() chan string {
 type SetIterator struct {
     conn redis.Conn
     key string
-    min float
-    max float
+    iterator_type int  // TODO really? Flags on native objects? Doesn't feel right to me...
 }
 
-func NewSetIterator(key string) SetIterator {
-    return NewSetIterator(key, 0, -1)
-}
-
-func NewSetIterator(key string, min float, max float) SetIterator {
+func NewSetIterator(key string, iterator_type int) SetIterator {
     c, err := redis.Dial("tcp", Config().Redis.Address)
     if err != nil {
         panic(fmt.Sprintf("SET ITERATOR %s  -  Could not connect to Redis", key))
     }
 
+    if iterator_type != SET_RANK_ITERATOR && iterator_type != SET_SCORE_ITERATOR {
+        panic(fmt.Sprintf("SET ITERATOR %s  -  Did not recognise iterator type %s\n", key, iterator_type))
+    }
+
     return SetIterator {
         conn: c,
         key: key,
-        min: min,
-        max: max,
+        iterator_type: iterator_type,
     }
 }
 
-// TODO: this violates interface Iterator above - nice way to do polymorphism in Go?
-// alternatively: a Reader for these which just gets the score - however, that does create a race condition which I don't like at all
-func (i SetIterator) Items() chan string, float {
-    items := make(chan string, float)
-    go func() {
-        
-    }
+type SetMember struct {
+    Term string
+    Score float32
 }
+
+func (set SetIterator) Items() chan Item {
+    items := make(chan Item)
+    go func() {
+        var min float32 = 0.0
+        var max float32 = 1.0
+        switch set.iterator_type {
+            case SET_RANK_ITERATOR:
+                max = -1.0
+            case SET_SCORE_ITERATOR:
+                max = 1.0
+            default:
+                panic(fmt.Sprintf("SET ITERATOR %s  -  Did not recognise iterator type %s\n", set.key, set.iterator_type))
+        }
+        members, err := redis.Strings(set.conn.Do("ZRANGE", set.key, min, max, "WITHSCORES"))
+        if err != nil {
+            panic(fmt.Sprintf("SET ITERATOR %s - Could not do ZRANGE %s", set.key, err.Error()))
+        }
+
+        for i := 0; i < len(members); i += 2 {
+            member := members[i]
+            score, err := strconv.ParseFloat(members[i+1], 32)
+            if err != nil {
+                panic(fmt.Sprintf("SET ITERATOR %s - Could not convert %s to float %s", set.key, members[i+1], err.Error()))
+            }
+            items <- SetMember{member, float32(score)}
+        }
+
+        items <- nil
+    }()
+    return items
+}
+
 
 // FILESYSTEM
 
@@ -90,22 +125,21 @@ type FileSystemIterator struct {
     dir string
 }
 
-func NewFileSystemIterator(dir) {
+func NewFileSystemIterator(dir string) FileSystemIterator {
     return FileSystemIterator{dir}
 }
 
-func (i FileSystemIterator) Items() chan string {
+func (i FileSystemIterator) Items() chan Item {
     files, err := ioutil.ReadDir(i.dir)
     if err != nil {
         panic(fmt.Sprintf("FILESYSTEM ITERATOR %s - could not read dir: %s", i.dir, err.Error()))
     }
-    items := make(chan string)
+    items := make(chan Item)
     go func() {
         for _, filestat := range files {
-            filename := filestat.Name()
-            items <- i.dir + "/" + string(filename)
+            items <- string(filestat.Name())
         }
         items <- nil
-    }
+    }()
     return items
 }

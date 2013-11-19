@@ -2,12 +2,8 @@ package main
 
 import (
     "github.com/alex-moon/noise/texts"
+    "github.com/alex-moon/noise/terms"
 )
-
-type MappedNGram struct {
-    key string
-    value string
-}
 
 func main() {
     texts.Texts()

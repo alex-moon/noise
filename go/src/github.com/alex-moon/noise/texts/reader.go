@@ -2,7 +2,6 @@ package texts
 
 import (
     "io/ioutil"
-    "github.com/alex-moon/noise/core"
 )
 
 type Reader interface {
@@ -15,7 +14,7 @@ type FileSystemReader struct {
     uuid string
 }
 
-func NewFileSystemReader(text_dir, uuid) FileSystemReader {
+func NewFileSystemReader(text_dir, uuid string) FileSystemReader {
     return FileSystemReader{text_dir, uuid}
 }
 
