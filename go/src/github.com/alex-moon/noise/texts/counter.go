@@ -6,6 +6,7 @@ import (
     "strings"
     "github.com/garyburd/redigo/redis"
     "github.com/alex-moon/noise/core"
+    "github.com/alex-moon/noise/terms"
 )
 
 type TermCounter struct {
@@ -18,6 +19,9 @@ func NewTermCounter(text Reader) TermCounter {
     if err != nil {
         panic(fmt.Sprintf("WORD COUNTER %s  -  Could not connect to Redis", text.Uuid()))
     }
+
+    c.Do("DEL", text.Uuid())  // if we're doing this a second time the first time failed - idempotence bitch
+
     return TermCounter {
         conn: c,
         text: text,
@@ -35,9 +39,10 @@ func (c TermCounter) Run(publisher core.Publisher) {
         if word != "" {
             // fmt.Printf("%s-%s\n", c.text.Uuid(), word)
             c.conn.Do("ZINCRBY", c.text.Uuid(), 1, word)
+            c.conn.Do("ZINCRBY", c.text.Uuid(), 1, core.SET_SUM_MEMBER)
+            terms.TermLocker().Create(word)
         }
     }
 
-    // TODO is this the right place to put this? Surely every worker is going to do a publisher.Publish...
     publisher.Publish(c.text.Uuid())
 }

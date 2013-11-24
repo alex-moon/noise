@@ -18,6 +18,25 @@ type config struct {
         Terms string
         Facts string
     }
+
+    Sets struct {
+        Mean string
+        SD string
+        Count string
+    }
+
+    SetPrefix struct {
+        Correlation string
+        CorrelationCount string
+        MultiCorrelation string
+        MultiCorrelationCount string
+        Interest string
+    }
+
+    Mutex struct {
+        Prefix string
+        TTL int
+    }
 }
 
 var config_instance *config = nil

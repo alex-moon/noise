@@ -13,7 +13,7 @@ func (p TermProcessor) Process() {
     for uuid := range iterator.Items() {
         if uuid == nil { break }
         term_iterator := core.NewSetIterator(string(uuid.([]byte)), core.SET_RANK_ITERATOR)
-        term_correlator := NewTermCorrelator(term_iterator)
+        term_correlator := NewTextCorrelator(term_iterator)
         go term_correlator.Run(p.publisher)
     }
 }
