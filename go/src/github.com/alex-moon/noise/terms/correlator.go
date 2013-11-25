@@ -8,7 +8,7 @@ import (
 
 type TextCorrelator struct {
     conn redis.Conn
-    iterator core.Iterator
+    cross_reference CrossReference
 }
 
 func NewTextCorrelator(term_iterator core.Iterator) TextCorrelator {
@@ -17,78 +17,46 @@ func NewTextCorrelator(term_iterator core.Iterator) TextCorrelator {
         panic(fmt.Sprintf("TEXT CORRELATOR %s  -  Could not connect to Redis", term_iterator))
     }
 
-    return TextCorrelator{c, term_iterator}
+    cross_reference := NewCrossReference(term_iterator)
+    return TextCorrelator{c, cross_reference}
 }
 
 func (tc TextCorrelator) Run(p core.Publisher) {
-    for item := range tc.iterator.Items() {
+    getter := core.NewGetter()
+    for item := range tc.cross_reference.Items() {
         if item == nil { break }
         // "member" is the term whose vital stats we'll update at the same time
-        member := item.(core.SetMember)
+        member := item.(SetCrossReferenceMember)
 
-        // TODO designating these as new vars is a waste of memory
-        term := member.Term
-        count := member.Score
-        total := member.SumTotal
-        score := count / total
-        fmt.Printf("Dig it: term %s appears %s times out of %s for a score of %s\n", term, count, total, score)
-
-        getter := core.NewGetter()
         go func() {
-            TermLocker().Lock(term)
-            defer TermLocker().Unlock(term)
-
-            // TODO provide defaults for all the following - perhaps some kind of set getter... yeah
-
-            // STEP 1: the count
-            // the number of texts this term has appeared in
-            old_n :=  getter.Get(core.Config().Sets.Count, term, 0)
-            new_n := old_n.(int) + 1
-
-            // STEP 2: the mean
-            // M(k) = M(k-1) + (x(k) - M(k-1)) / k
-            old_mean := getter.Get(core.Config().Sets.Mean, term, score)
-            new_mean := old_mean.(float32) + (score - old_mean.(float32)) / float32(new_n)  // Knuth-Welford
-
-            // STEP 3: the standard deviation
-            // S(k) = S(k-1) + (x(k) - M(k-1)) * (x(k) - M(k))
-            old_sd := getter.Get(core.Config().Sets.SD, term, 0)
-            new_sd := old_sd.(float32) + (score - old_mean.(float32)) * (score - new_mean)
-            fmt.Printf("We have a standard deviation: %s\n", new_sd)
-
-            for _, cross_reference_member := range member.CrossReference {
-                fmt.Printf("HOLY SHIT - now correlating %s and %s\n", member.Term, cross_reference_member.Term)
-
-                // STEP 4: correlation count
+            for _, cr_member := range member.CrossReference {
+                fmt.Printf("Now correlating %s and %s\n", member.Term, cr_member.Term)
                 // bear in mind: everything from here on in is symmetrical
-                tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + term, 1, cross_reference_member.Term)
-                tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + cross_reference_member.Term, 1, term)
 
-                // STEP 5: the moment of truth
-                existing_correlation := getter.Get(core.Config().SetPrefix.Correlation + term, cross_reference_member.Term, 0)
+                // STEP 4: the moment of truth
+                correlation_count := getter.Get(core.Config().SetPrefix.CorrelationCount + member.Term, cr_member.Term, float32(0.0))
 
-                if existing_correlation != nil {
-                    cr_sd := getter.Get(core.Config().Sets.SD, cross_reference_member.Term, 0)
-                    fmt.Printf("We have a standard deviation: %s\n", cr_sd)
+                if correlation_count.(float32) > 0.0 {
+                    old_correlation := getter.Get(core.Config().SetPrefix.Correlation + member.Term, cr_member.Term, nil)
+                    if old_correlation == nil {
+                        panic(fmt.Sprintf("TERM CORRELATOR  -  missing correlation for correlation count > 0 - %s and %s have been correlated %d times\n", member.Term, cr_member.Term, correlation_count))
+                    }
+                    old_covariance := old_correlation.(float32) * cr_member.Old.SD * member.Old.SD
+                    new_covariance := (old_covariance * correlation_count.(float32) + (member.Score - member.New.Mean) * (cr_member.Score - cr_member.Old.Mean)) / correlation_count.(float32) // Pébay
+                    new_correlation := new_covariance / (cr_member.New.SD * member.New.SD)
+
+                    tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + member.Term, new_correlation, cr_member.Term)
+                    tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + cr_member.Term, new_correlation, member.Term)
                 } else {
-                    // all hell breaks loose
+                    // TODO
+                    // Pearson for two observations is always 1 or -1 - confirm this works for online covariance above
+                    // if it does we can optimise this else case - if they move in the same direction it's 1, otherwise it's -1
+                    // otherwise I suspect we're going to have to store the first two scores for every term :(
                 }
 
-
-                /*
-                core.Config().SetPrefix.Correlation + term
-
-                we now have member - here is where we would iterate through all the succeeding set members and do correlation
-                if existing correlation:
-                1. multiply by product of existing SDs to get existing covariance,
-                2. update covariance - http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Covariance (scroll to the very bottom)
-                - C(n)(x,y) = C(n-1)(x,y) * (n-1) + (x(n) - M(n)(x)) * (y(n) - M(n-1)(y)) [= same thing but with M(n-1)(x) and M(n)(y)]
-                              -----------------------------------------------------------
-                                                      n
-                3. divide by product of new SDs
-
-                tc.conn.Do("LPUSH", core.Config().Mutex.Prefix + term, "buttlol")
-                */
+                // STEP 5: correlation count
+                tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + member.Term, 1, cr_member.Term)
+                tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + cr_member.Term, 1, member.Term)
             }
         }()
     }

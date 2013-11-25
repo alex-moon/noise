@@ -37,7 +37,6 @@ func (l RedisTermLocker) Lock(term string) {
 
 func (l RedisTermLocker) Unlock(term string) {
     l.conn.Do("LPUSH", core.Config().Mutex.Prefix + term)
-    recover() // not sure I'm using this right
 }
 
 func (l RedisTermLocker) Create(term string) {

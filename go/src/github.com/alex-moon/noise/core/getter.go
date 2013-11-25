@@ -1,34 +1,33 @@
 package core
 
 import (
-    "github.com/garyburd/redigo/redis"
     "fmt"
+    "github.com/garyburd/redigo/redis"
 )
 
 type Getter interface {
     Get(key, member string) Item
 }
 
-type RedisGetter struct {
+type RedisScoreGetter struct {
     conn redis.Conn
 }
 
-func NewGetter() RedisGetter {
+func NewGetter() RedisScoreGetter {
     c, err := redis.Dial("tcp", Config().Redis.Address)
     if err != nil {
         panic(fmt.Sprintf("GETTER  -  Could not connect to Redis"))
     }
 
-    return RedisGetter{c}
+    return RedisScoreGetter{c}
 }
 
-func (g RedisGetter) Get(key, member, default_val interface{}) Item {
-    item, err := g.conn.Do("ZSCORE", key, member)
-    if err != nil {
+func (g RedisScoreGetter) Get(key, member, default_val interface{}) Item {
+    item, err := redis.Float64(g.conn.Do("ZSCORE", key, member))
+    if err == redis.ErrNil {
+        return default_val
+    } else if err != nil {
         panic(fmt.Sprintf("GETTER  -  could not get %s %s: %s\n", key, member, err.Error()))
     }
-    if item == nil{
-        return default_val
-    }
-    return item
+    return float32(item)
 }

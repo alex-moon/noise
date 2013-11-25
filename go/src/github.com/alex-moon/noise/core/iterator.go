@@ -85,10 +85,10 @@ type SetMember struct {
     Term string
     Score float32
     SumTotal float32
-    CrossReference []SetMember
 }
 
 func (set SetIterator) Items() chan Item {
+    getter := NewGetter()
     items := make(chan Item)
     go func() {
         var min float32 = 0.0
@@ -98,11 +98,11 @@ func (set SetIterator) Items() chan Item {
         switch set.iterator_type {
             case SET_RANK_ITERATOR:
                 max = -1.0
-                t, err := redis.Float64(set.conn.Do("ZSCORE", set.key, SET_SUM_MEMBER))
-                if err != nil {
-                    panic(fmt.Sprintf("SET ITERATOR %s  -  Could not get sum total for set %s: %s\n", set.key, set.iterator_type, err.Error()))
+                t := getter.Get(set.key, SET_SUM_MEMBER, nil)
+                if t == nil {
+                    panic(fmt.Sprintf("SET ITERATOR %s  -  Could not get sum total for set %s\n", set.key, set.iterator_type))
                 }
-                sum_total = float32(t)
+                sum_total = float32(t.(float32))
             case SET_SCORE_ITERATOR:
                 break
             default:
@@ -114,26 +114,13 @@ func (set SetIterator) Items() chan Item {
             panic(fmt.Sprintf("SET ITERATOR %s - Could not do ZRANGE %s", set.key, err.Error()))
         }
 
-        // first construct the cross-reference list we'll attach to each member (popping from the front each time)
-        cross_reference := []SetMember{}
-        for i := 2; i < len(members); i += 2 {
-            cross_reference_term := members[i]
-            cross_reference_score, err := strconv.ParseFloat(members[i+1], 32)
-            if err != nil {
-                panic(fmt.Sprintf("SET ITERATOR %s - Could not convert %s to float %s", set.key, members[i+1], err.Error()))
-            }
-            cross_reference_member := SetMember{cross_reference_term, float32(cross_reference_score), sum_total, []SetMember{}}
-            cross_reference = append(cross_reference, cross_reference_member)
-        }
-
         for i := 0; i < len(members); i += 2 {
             member := members[i]
             score, err := strconv.ParseFloat(members[i+1], 32)
             if err != nil {
                 panic(fmt.Sprintf("SET ITERATOR %s - Could not convert %s to float %s", set.key, members[i+1], err.Error()))
             }
-            cross_reference := cross_reference[1:]
-            items <- SetMember{member, float32(score), sum_total, cross_reference}
+            items <- SetMember{member, float32(score), sum_total}
         }
 
         items <- nil
