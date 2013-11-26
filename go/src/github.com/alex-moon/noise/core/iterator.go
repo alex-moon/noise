@@ -116,6 +116,7 @@ func (set SetIterator) Items() chan Item {
 
         for i := 0; i < len(members); i += 2 {
             member := members[i]
+            if member == SET_SUM_MEMBER { continue }
             score, err := strconv.ParseFloat(members[i+1], 32)
             if err != nil {
                 panic(fmt.Sprintf("SET ITERATOR %s - Could not convert %s to float %s", set.key, members[i+1], err.Error()))

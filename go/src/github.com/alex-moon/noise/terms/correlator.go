@@ -36,22 +36,29 @@ func (tc TextCorrelator) Run(p core.Publisher) {
                 // STEP 4: the moment of truth
                 correlation_count := getter.Get(core.Config().SetPrefix.CorrelationCount + member.Term, cr_member.Term, float32(0.0))
 
-                if correlation_count.(float32) > 0.0 {
+                if correlation_count.(float32) > 1.0 {
                     old_correlation := getter.Get(core.Config().SetPrefix.Correlation + member.Term, cr_member.Term, nil)
                     if old_correlation == nil {
-                        panic(fmt.Sprintf("TERM CORRELATOR  -  missing correlation for correlation count > 0 - %s and %s have been correlated %d times\n", member.Term, cr_member.Term, correlation_count))
+                        panic(fmt.Sprintf("TERM CORRELATOR  -  missing correlation for correlation count > 1 - %s and %s have been correlated %d times\n", member.Term, cr_member.Term, correlation_count))
                     }
                     old_covariance := old_correlation.(float32) * cr_member.Old.SD * member.Old.SD
                     new_covariance := (old_covariance * correlation_count.(float32) + (member.Score - member.New.Mean) * (cr_member.Score - cr_member.Old.Mean)) / correlation_count.(float32) // Pébay
                     new_correlation := new_covariance / (cr_member.New.SD * member.New.SD)
 
+                    // TODO: here is where you would unlock the term(s?)
                     tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + member.Term, new_correlation, cr_member.Term)
                     tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + cr_member.Term, new_correlation, member.Term)
-                } else {
-                    // TODO
-                    // Pearson for two observations is always 1 or -1 - confirm this works for online covariance above
-                    // if it does we can optimise this else case - if they move in the same direction it's 1, otherwise it's -1
-                    // otherwise I suspect we're going to have to store the first two scores for every term :(
+                } else if correlation_count.(float32) > 0.0 {
+                    // Pearson for two observations is always 1, -1 or undefined (if either variable doesn't move)
+                    // For convenience we're going to assume that if either is equal we've got a floating point error
+                    // the correlation is in fact 1
+                    new_correlation := 1.0
+                    if (member.New.Mean > member.Old.Mean && cr_member.New.Mean < cr_member.Old.Mean) ||
+                       (member.New.Mean < member.Old.Mean && cr_member.New.Mean > cr_member.Old.Mean) {
+                        new_correlation = -1.0
+                    }
+                    tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + member.Term, new_correlation, cr_member.Term)
+                    tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + cr_member.Term, new_correlation, member.Term)
                 }
 
                 // STEP 5: correlation count
