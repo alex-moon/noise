@@ -8,13 +8,13 @@ type CrossReference core.Iterator
 
 type VitalStats struct {
     N int
-    Mean float32
-    SD float32
+    Mean float64
+    SD float64
 }
 
 type SetCrossReferenceMember struct {
     Term string
-    Score float32
+    Score float64
     Old VitalStats
     New VitalStats
     CrossReference []SetCrossReferenceMember
@@ -39,26 +39,26 @@ func NewCrossReference(iterator core.Iterator) CrossReference {
 
         // STEP 1: the count
         // the number of texts this item.Term has appeared in
-        old_n :=  getter.Get(core.Config().Sets.Count, member.Term, 0)
-        new_n := old_n.(int) + 1
+        old_n :=  getter.GetInt(core.Config().Sets.Count, member.Term, 0)
+        new_n := old_n + 1
 
         // STEP 2: the mean
         // M(k) = M(k-1) + (x(k) - M(k-1)) / k
-        old_mean := getter.Get(core.Config().Sets.Mean, member.Term, score)
-        new_mean := old_mean.(float32) + (score - old_mean.(float32)) / float32(new_n)  // Knuth-Welford
+        old_mean := getter.GetFloat(core.Config().Sets.Mean, member.Term, score)
+        new_mean := old_mean + (score - old_mean) / float64(new_n)  // Knuth-Welford
 
         // STEP 3: the standard deviation
         // S(k) = S(k-1) + (x(k) - M(k-1)) * (x(k) - M(k))
-        old_sd := getter.Get(core.Config().Sets.SD, member.Term, float32(0.0))
-        new_sd := old_sd.(float32) + (score - old_mean.(float32)) * (score - new_mean)  // Knuth-Welford
+        old_sd := getter.GetFloat(core.Config().Sets.SD, member.Term, 0.0)
+        new_sd := old_sd + (score - old_mean) * (score - new_mean)  // Knuth-Welford
 
         items = append(items, SetCrossReferenceMember{
             member.Term,
             score,
             VitalStats {
-                old_n.(int),
-                old_mean.(float32),
-                old_sd.(float32),
+                old_n,
+                old_mean,
+                old_sd,
             },
             VitalStats {
                 new_n,

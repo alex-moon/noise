@@ -83,26 +83,25 @@ func NewSetIterator(key string, iterator_type int) SetIterator {
 
 type SetMember struct {
     Term string
-    Score float32
-    SumTotal float32
+    Score float64
+    SumTotal float64
 }
 
 func (set SetIterator) Items() chan Item {
     getter := NewGetter()
     items := make(chan Item)
     go func() {
-        var min float32 = 0.0
-        var max float32 = 1.0
-        var sum_total float32 = 1.0
+        var min float64 = 0.0
+        var max float64 = 1.0
+        var sum_total float64 = 1.0
 
         switch set.iterator_type {
             case SET_RANK_ITERATOR:
                 max = -1.0
-                t := getter.Get(set.key, SET_SUM_MEMBER, nil)
-                if t == nil {
+                sum_total := getter.GetFloat(set.key, SET_SUM_MEMBER, 0.0)
+                if sum_total == 0.0 {
                     panic(fmt.Sprintf("SET ITERATOR %s  -  Could not get sum total for set %s\n", set.key, set.iterator_type))
                 }
-                sum_total = float32(t.(float32))
             case SET_SCORE_ITERATOR:
                 break
             default:
@@ -117,11 +116,11 @@ func (set SetIterator) Items() chan Item {
         for i := 0; i < len(members); i += 2 {
             member := members[i]
             if member == SET_SUM_MEMBER { continue }
-            score, err := strconv.ParseFloat(members[i+1], 32)
+            score, err := strconv.ParseFloat(members[i+1], 64)
             if err != nil {
                 panic(fmt.Sprintf("SET ITERATOR %s - Could not convert %s to float %s", set.key, members[i+1], err.Error()))
             }
-            items <- SetMember{member, float32(score), sum_total}
+            items <- SetMember{member, score, sum_total}
         }
 
         items <- nil

@@ -30,25 +30,21 @@ func (tc TextCorrelator) Run(p core.Publisher) {
 
         go func() {
             for _, cr_member := range member.CrossReference {
-                fmt.Printf("Now correlating %s and %s\n", member.Term, cr_member.Term)
                 // bear in mind: everything from here on in is symmetrical
 
                 // STEP 4: the moment of truth
-                correlation_count := getter.Get(core.Config().SetPrefix.CorrelationCount + member.Term, cr_member.Term, float32(0.0))
+                correlation_count := getter.GetInt(core.Config().SetPrefix.CorrelationCount + member.Term, cr_member.Term, 0)
 
-                if correlation_count.(float32) > 1.0 {
-                    old_correlation := getter.Get(core.Config().SetPrefix.Correlation + member.Term, cr_member.Term, nil)
-                    if old_correlation == nil {
-                        panic(fmt.Sprintf("TERM CORRELATOR  -  missing correlation for correlation count > 1 - %s and %s have been correlated %d times\n", member.Term, cr_member.Term, correlation_count))
-                    }
-                    old_covariance := old_correlation.(float32) * cr_member.Old.SD * member.Old.SD
-                    new_covariance := (old_covariance * correlation_count.(float32) + (member.Score - member.New.Mean) * (cr_member.Score - cr_member.Old.Mean)) / correlation_count.(float32) // Pébay
+                if correlation_count > 1 {
+                    old_correlation := getter.GetFloat(core.Config().SetPrefix.Correlation + member.Term, cr_member.Term, 0.0)
+                    old_covariance := old_correlation * cr_member.Old.SD * member.Old.SD
+                    new_covariance := (old_covariance * float64(correlation_count) + (member.Score - member.New.Mean) * (cr_member.Score - cr_member.Old.Mean)) / float64(correlation_count) // Pébay
                     new_correlation := new_covariance / (cr_member.New.SD * member.New.SD)
 
                     // TODO: here is where you would unlock the term(s?)
                     tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + member.Term, new_correlation, cr_member.Term)
                     tc.conn.Do("ZADD", core.Config().SetPrefix.Correlation + cr_member.Term, new_correlation, member.Term)
-                } else if correlation_count.(float32) > 0.0 {
+                } else if correlation_count > 0 {
                     // Pearson for two observations is always 1, -1 or undefined (if either variable doesn't move)
                     // For convenience we're going to assume that if either is equal we've got a floating point error
                     // the correlation is in fact 1

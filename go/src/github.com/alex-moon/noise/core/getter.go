@@ -5,10 +5,6 @@ import (
     "github.com/garyburd/redigo/redis"
 )
 
-type Getter interface {
-    Get(key, member string) Item
-}
-
 type RedisScoreGetter struct {
     conn redis.Conn
 }
@@ -22,12 +18,22 @@ func NewGetter() RedisScoreGetter {
     return RedisScoreGetter{c}
 }
 
-func (g RedisScoreGetter) Get(key, member, default_val interface{}) Item {
-    item, err := redis.Float64(g.conn.Do("ZSCORE", key, member))
+func (g RedisScoreGetter) GetFloat(key, member string, default_val float64) float64 {
+    item, err := g.conn.Do("ZSCORE", key, member)
+    if err != nil {
+        panic(fmt.Sprintf("GETTER  -  could not get %s %s - got %s: %s\n", key, member, item, err.Error()))
+    }
+    score, err := redis.Float64(item, err)
     if err == redis.ErrNil {
         return default_val
     } else if err != nil {
-        panic(fmt.Sprintf("GETTER  -  could not get %s %s: %s\n", key, member, err.Error()))
+        panic(fmt.Sprintf("GETTER  -  could not convert %s to float64: %s\n", item, err.Error()))
     }
-    return float32(item)
+    return score
+}
+
+
+func (g RedisScoreGetter) GetInt(key, member string, default_val int) int {
+    score_float := g.GetFloat(key, member, float64(default_val))
+    return int(score_float)
 }
