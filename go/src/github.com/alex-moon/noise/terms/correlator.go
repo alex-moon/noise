@@ -24,8 +24,11 @@ func NewTextCorrelator(term_iterator core.Iterator) TextCorrelator {
 func (tc TextCorrelator) OnlineCorrelate(member SetCrossReferenceMember, 
                                          cr_member SetCrossReferenceMember,
                                          n float64) {
-    if do_over := recover(); do_over == nil {
+    do_over := recover()
+    if do_over == nil {
         return
+    } else {
+        fmt.Printf("TEXT CORRELATOR  -  %s - retrying...\n", do_over)
     }
     defer tc.OnlineCorrelate(member, cr_member, n)
     getter := tc.cross_reference.getter
@@ -40,8 +43,11 @@ func (tc TextCorrelator) OnlineCorrelate(member SetCrossReferenceMember,
 }
 
 func (tc TextCorrelator) FirstCorrelate(member SetCrossReferenceMember, cr_member SetCrossReferenceMember) {
-    if do_over := recover(); do_over == nil {
+    do_over := recover()
+    if do_over == nil {
         return
+    } else {
+        fmt.Printf("TEXT CORRELATOR  -  %s - retrying...\n", do_over)
     }
     defer tc.FirstCorrelate(member, cr_member)
     // Pearson for two observations is always 1, -1 or undefined (if either variable doesn't move)
@@ -68,6 +74,7 @@ func (tc TextCorrelator) Correlate(member SetCrossReferenceMember) {
         }
 
         // STEP 5: correlation count
+        fmt.Printf("TEXT CORRELATOR  -  successfully correlated %s and %s\n", member.Term, cr_member.Term)
         tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + member.Term, 1, cr_member.Term)
         tc.conn.Do("ZINCRBY", core.Config().SetPrefix.CorrelationCount + cr_member.Term, 1, member.Term)
     }
