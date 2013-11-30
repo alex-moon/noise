@@ -21,13 +21,15 @@ func NewGetter() RedisScoreGetter {
 func (g RedisScoreGetter) GetFloat(key, member string, default_val float64) float64 {
     item, err := g.conn.Do("ZSCORE", key, member)
     if err != nil {
-        panic(fmt.Sprintf("GETTER  -  could not get %s %s - got %s: %s\n", key, member, item, err.Error()))
+        fmt.Sprintf("GETTER  -  could not get %s %s - got %s: %s - retrying...\n", key, member, item, err.Error())
+        return g.GetFloat(key, member, default_val)
     }
     score, err := redis.Float64(item, err)
     if err == redis.ErrNil {
         return default_val
     } else if err != nil {
-        panic(fmt.Sprintf("GETTER  -  could not convert %s to float64: %s\n", item, err.Error()))
+        fmt.Sprintf("GETTER  -  could not convert %s to float64: %s - retrying...\n", item, err.Error())
+        return g.GetFloat(key, member, default_val)
     }
     return score
 }
