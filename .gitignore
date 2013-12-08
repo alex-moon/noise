@@ -4,3 +4,7 @@ scala/target
 erlang/*.beam
 *~
 notes.txt
+go/bin
+go/pkg
+go/src/code.google.com
+go/src/github.com/garyburd
