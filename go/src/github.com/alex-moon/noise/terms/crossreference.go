@@ -1,6 +1,7 @@
 package terms
 
 import (
+    "math"
     "github.com/alex-moon/noise/core"
 )
 
@@ -52,7 +53,9 @@ func (cr SetCrossReference) Items() chan core.Item {
             // STEP 3: the standard deviation
             // S(k) = S(k-1) + (x(k) - M(k-1)) * (x(k) - M(k))
             old_sd := cr.getter.GetFloat(core.Config().Sets.SD, member.Term, 0.0)
-            new_sd := old_sd + (score - old_mean) * (score - new_mean)  // Knuth-Welford
+            sum_of_squared_differences := old_sd * old_sd * float64(old_n)
+            sum_of_squared_differences += (score - old_mean) * (score - new_mean)  // Knuth-Welford
+            new_sd := math.Sqrt(sum_of_squared_differences / float64(new_n))
 
             items = append(items, SetCrossReferenceMember{
                 member.Term,
