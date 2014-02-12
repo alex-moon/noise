@@ -1,8 +1,13 @@
 package com.github.alex_moon.noise.text;
 
-public class Controller {
-    public Text getOneText() {
-        Text result = new Text("LOL it's actually just Hello World");
-        return result;
+public class Controller extends Thread {
+    private Retriever retriever;
+
+    public Controller() {
+        retriever = new Retriever();
+    }
+
+    public void run() {
+        retriever.start();
     }
 }
