@@ -7,18 +7,12 @@ public abstract class Updateable {
 	protected List<Updateable> listeners;
 	private Method doUpdateMethod;
 
-	public void update(Object... args) {
+	public void update(Updateable sender) {
     	try {
-    		Class[] argTypes = new Class[args.length];
-    		for (int i = 0; i < args.length; i++) {
-    			argTypes[i] = args[i].getClass();
-    		}
-	    	doUpdateMethod = Updateable.class.getDeclaredMethod("doUpdate", argTypes);
-
 			synchronized (this) {
-				doUpdateMethod.invoke(this, args);
+				doUpdate(sender);
 				for (Updateable listener : listeners) {
-					listener.update();
+					listener.update(this);
 				}
 			}
 	    } catch (Exception e) {
@@ -31,4 +25,6 @@ public abstract class Updateable {
 			listeners.add(obj);
 		}
 	}
+	
+	protected abstract void doUpdate(Updateable sender);
 }

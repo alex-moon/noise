@@ -37,8 +37,8 @@ public class Retriever extends Thread {
                 Path filename = pathEvent.context();  // context() is the filename
                 Path file = textsPath.resolve(filename);
                 Text text = createTextFromFile(file);
+                text.update(null);
 
-                // TODO notify processor
                 System.out.println("We have a file - " + file + ":");
                 for (String line : text.asWordList()) {
                     System.out.println(line);

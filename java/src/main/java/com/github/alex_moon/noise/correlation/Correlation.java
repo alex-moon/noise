@@ -12,9 +12,11 @@ public class Correlation extends Updateable {
     public Correlation(Term a, Term b) {
         this.a = a;
         this.b = b;
+        a.listen(this);
+        b.listen(this);
     }
     
-    public void doUpdate() {
+    public void doUpdate(Updateable sender) {
     	Double covariance = coefficient * a.getOldSd() * b.getOldSd();
     	covariance = covariance * getN() + a.getProportion() - a.getMean();
     	covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();

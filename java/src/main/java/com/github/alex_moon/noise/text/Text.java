@@ -1,10 +1,17 @@
 package com.github.alex_moon.noise.text;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-public class Text {
+import com.github.alex_moon.noise.core.Updateable;
+import com.github.alex_moon.noise.term.Term;
+
+public class Text extends Updateable {
     private String stringValue;
     private UUID uuid;
+    
+    private Map<String, Double> proportions;
 
     public Text(String initialStringValue) {
         stringValue = initialStringValue;
@@ -18,6 +25,30 @@ public class Text {
         } catch (IllegalArgumentException e) {
             this.uuid = UUID.randomUUID();
         }
+    }
+    
+    public void doUpdate(Updateable sender) {
+    	Map<String, Integer> counts = new HashMap<String, Integer>();
+    	Integer total = 0;
+
+    	for (String termString : asWordList()) {
+    		Integer count = 0;
+        	if (counts.containsKey(termString)) {
+        		count += counts.get(termString);
+        	}
+        	counts.put(termString, count);
+        	total ++;
+    	}
+
+    	for (String termString : counts.keySet()) {
+    		Term term = new Term(termString);  // @todo getTerm() from term Controller
+    		proportions.put(termString, counts.get(termString).doubleValue() / total);
+    		listeners.add(term);
+    	}
+    }
+    
+    public Double getProportion(String termString) {
+    	return proportions.get(termString);
     }
 
     public String[] asWordList() {

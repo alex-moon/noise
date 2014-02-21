@@ -11,22 +11,20 @@ public class Term extends Updateable {
     private Double mean = 0.0;
     private Double standardDeviation = 0.0;
     private List<Text> texts = new ArrayList<Text>();
-    
-    private Double lastProportion;
+
     private Text lastText;
-    private Double lastMean, lastStandardDeviation;
+    private Double lastMean, lastStandardDeviation, lastProportion;
 
     public Term(String termString) {
         this.termString = termString;
     }
 
     /**
-     * @param proportion = the proportion of some text that is the term = term word count / total word count
+     * @param lastProportion = the lastProportion of some text that is the term = term word count / total word count
      */
-    protected void doUpdate(Text text, Double proportion) {
-    	lastText = text;
-    	lastProportion = proportion;
-
+    protected void doUpdate(Updateable text) {
+    	lastText = (Text)text;
+    	lastProportion = lastText.getProportion(this.termString);
         if (texts.contains(lastText)) {
             // @todo something?
         } else {
