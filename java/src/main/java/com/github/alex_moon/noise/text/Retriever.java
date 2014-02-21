@@ -38,11 +38,6 @@ public class Retriever extends Thread {
                 Path file = textsPath.resolve(filename);
                 Text text = createTextFromFile(file);
                 text.update(null);
-
-                System.out.println("We have a file - " + file + ":");
-                for (String line : text.asWordList()) {
-                    System.out.println(line);
-                }
             }
 
             key.reset();

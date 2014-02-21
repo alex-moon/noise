@@ -16,6 +16,7 @@ public class Text extends Updateable {
     public Text(String initialStringValue) {
         stringValue = initialStringValue;
         uuid = UUID.randomUUID();
+        proportions = new HashMap<String, Double>();
     }
 
     public Text(String initialStringValue, String uuid) {
@@ -25,6 +26,7 @@ public class Text extends Updateable {
         } catch (IllegalArgumentException e) {
             this.uuid = UUID.randomUUID();
         }
+        proportions = new HashMap<String, Double>();
     }
     
     public void doUpdate(Updateable sender) {
@@ -36,14 +38,14 @@ public class Text extends Updateable {
         	if (counts.containsKey(termString)) {
         		count += counts.get(termString);
         	}
+        	count ++; total ++;
         	counts.put(termString, count);
-        	total ++;
     	}
 
     	for (String termString : counts.keySet()) {
     		Term term = new Term(termString);  // @todo getTerm() from term Controller
     		proportions.put(termString, counts.get(termString).doubleValue() / total);
-    		listeners.add(term);
+    		listen(term);
     	}
     }
     

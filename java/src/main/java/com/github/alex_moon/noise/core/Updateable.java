@@ -1,11 +1,16 @@
 package com.github.alex_moon.noise.core;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Updateable {
 	protected List<Updateable> listeners;
 	private Method doUpdateMethod;
+	
+	public Updateable() {
+		listeners = new ArrayList<Updateable>();
+	}
 
 	public void update(Updateable sender) {
     	try {
