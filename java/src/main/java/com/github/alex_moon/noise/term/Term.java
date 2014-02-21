@@ -27,6 +27,7 @@ public class Term extends Updateable {
     	lastProportion = lastText.getProportion(this.termString);
         if (texts.contains(lastText)) {
             // @todo something?
+        	System.out.println("WARNING: text " + lastText.getUuid() + " reregistering for term '" + termString + "'");
         } else {
             texts.add(lastText);
             Integer count = texts.size();

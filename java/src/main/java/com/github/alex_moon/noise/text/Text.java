@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import com.github.alex_moon.noise.core.Core;
 import com.github.alex_moon.noise.core.Updateable;
 import com.github.alex_moon.noise.term.Term;
 
@@ -43,7 +44,7 @@ public class Text extends Updateable {
     	}
 
     	for (String termString : counts.keySet()) {
-    		Term term = new Term(termString);  // @todo getTerm() from term Controller
+    		Term term = Core.getTermController().getTerm(termString);
     		proportions.put(termString, counts.get(termString).doubleValue() / total);
     		listen(term);
     	}
