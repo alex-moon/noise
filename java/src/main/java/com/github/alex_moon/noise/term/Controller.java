@@ -3,18 +3,24 @@ package com.github.alex_moon.noise.term;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.github.alex_moon.noise.text.Text;
+
 public class Controller extends Thread {
     private Map<String, Term> terms;
 
     public void run() {
         terms = new HashMap<String, Term>();
-        // @todo stuff re terms
     }
 
-    public Term getTerm(String termString) {
+    public Term getTerm(String termString, Text text) {
+        Term term = null;
         if (!terms.containsKey(termString)) {
-            terms.put(termString, new Term(termString));
+            term = new Term(termString);
+            terms.put(termString, term);
+        } else {
+            term = terms.get(termString);
         }
-        return terms.get(termString);
+        text.listen(term);
+        return term;
     }
 }

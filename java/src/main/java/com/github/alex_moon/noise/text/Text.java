@@ -1,6 +1,8 @@
 package com.github.alex_moon.noise.text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,11 +47,18 @@ public class Text extends Updateable {
         }
 
         for (String termString : counts.keySet()) {
-            Term term = Core.getTermController().getTerm(termString);
-            proportions.put(termString, counts.get(termString).doubleValue()
-                    / total);
-            listen(term);
+            Core.getTermController().getTerm(termString, this);
+            proportions.put(termString, counts.get(termString).doubleValue() / total);
         }
+    }
+
+    public List<Term> getCorrelates(Term term) {
+        List<Term> correlates = new ArrayList<Term>();
+        for (String termString : proportions.keySet()) {
+            Term correlate = Core.getTermController().getTerm(termString, this);
+            correlates.add(correlate);
+        }
+        return correlates;
     }
 
     public Double getProportion(String termString) {

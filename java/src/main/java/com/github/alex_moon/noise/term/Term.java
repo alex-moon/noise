@@ -3,7 +3,9 @@ package com.github.alex_moon.noise.term;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.github.alex_moon.noise.core.Core;
 import com.github.alex_moon.noise.core.Updateable;
+import com.github.alex_moon.noise.correlation.Correlation;
 import com.github.alex_moon.noise.text.Text;
 
 public class Term extends Updateable {
@@ -21,25 +23,29 @@ public class Term extends Updateable {
 
     /**
      * @param lastProportion
-     *            = the lastProportion of some text that is the term = term word
-     *            count / total word count
+     *            the amount of the last encountered text this term accounts for by itself 
+     *            i.e. no. occurrences of this word / no. words in the whole text
      */
     protected void doUpdate(Updateable text) {
         lastText = (Text) text;
         lastProportion = lastText.getProportion(this.termString);
         if (texts.contains(lastText)) {
             // @todo something?
-            System.out.println("WARNING: text " + lastText.getUuid()
-                    + " reregistering for term '" + termString + "'");
+            System.out.println("WARNING: text " + lastText.getUuid() + " reregistering for term '" + termString + "'");
         } else {
             texts.add(lastText);
+
+            // first handle correlations
+            for (Term correlate : lastText.getCorrelates(this)) {
+                Core.getCorrelationController().getCorrelation(this, correlate);
+            }
+
+            // now do mean and standard deviation
             Integer count = texts.size();
             lastMean = mean;
             lastStandardDeviation = standardDeviation;
             mean = mean + (lastProportion - mean) / count;
-            Double sumOfSquaredDifferences = (standardDeviation * standardDeviation)
-                    * (count - 1)
-                    + ((lastProportion - lastMean) * (lastProportion - mean));
+            Double sumOfSquaredDifferences = (standardDeviation * standardDeviation) * (count - 1) + ((lastProportion - lastMean) * (lastProportion - mean));
             standardDeviation = Math.sqrt(sumOfSquaredDifferences / count);
         }
     }
@@ -68,7 +74,15 @@ public class Term extends Updateable {
         return texts;
     }
 
+    public Text getLastText() {
+        return lastText;
+    }
+
     public Double getProportion() {
         return lastProportion;
+    }
+
+    public String toString() {
+        return termString;
     }
 }

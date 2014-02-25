@@ -17,10 +17,15 @@ public class Correlation extends Updateable {
     }
 
     public void doUpdate(Updateable sender) {
-        Double covariance = coefficient * a.getOldSd() * b.getOldSd();
-        covariance = covariance * getN() + a.getProportion() - a.getMean();
-        covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();
-        coefficient = covariance / (a.getSd() * b.getSd());
+        // only update the correlation if both terms have been hit by the same text
+        if (a.getLastText() == b.getLastText()) {
+            Double covariance = coefficient * a.getOldSd() * b.getOldSd();
+            covariance = covariance * getN() + a.getProportion() - a.getMean();
+            covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();
+            coefficient = covariance / (a.getSd() * b.getSd());
+        } else {
+            System.out.println("a.lastText = " + a.getLastText() + " b.lastText = " + b.getLastText());
+        }
     }
 
     private Integer getN() {

@@ -36,11 +36,11 @@ public class Core {
     public static Thread getController(Integer type) {
         return getInstance().controllers.get(type);
     }
-    
+
     public static com.github.alex_moon.noise.text.Controller getTextController() {
         return (com.github.alex_moon.noise.text.Controller) getController(TEXTS);
     }
-    
+
     public static com.github.alex_moon.noise.term.Controller getTermController() {
         return (com.github.alex_moon.noise.term.Controller) getController(TERMS);
     }
