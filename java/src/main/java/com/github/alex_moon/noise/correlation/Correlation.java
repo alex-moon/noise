@@ -19,12 +19,21 @@ public class Correlation extends Updateable {
     public void doUpdate(Updateable sender) {
         // only update the correlation if both terms have been hit by the same text
         if (a.getLastText() == b.getLastText()) {
-            Double covariance = coefficient * a.getOldSd() * b.getOldSd();
-            covariance = covariance * getN() + a.getProportion() - a.getMean();
-            covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();
-            coefficient = covariance / (a.getSd() * b.getSd());
-        } else {
-            System.out.println("a.lastText = " + a.getLastText() + " b.lastText = " + b.getLastText());
+            Integer n = getN();
+            if (n > 2) {
+                Double aDelta = a.getProportion() - a.getOldMean();
+                Double bDelta = b.getProportion() - b.getOldMean();
+                Double aMean = a.getOldMean() + aDelta / (n + 1);
+                Double bMean = b.getOldMean() + bDelta / (n + 1);
+                System.out.println("New mean for " + a + " should be " + aMean + " is actually " + a.getMean());
+                System.out.println("New mean for " + b + " should be " + bMean + " is actually " + b.getMean());
+                Double covariance = n * coefficient * a.getOldSd() * b.getOldSd() +
+                                    n * aDelta * bDelta / (n + 1);
+                coefficient = covariance / (a.getSd() * b.getSd()); // should these be oldSd()?
+                if (a.toString() == b.toString()) System.out.println("Term '" + a + "' (sd=" + a.getSd() + ") and '" + b + "' (sd="+ b.getSd() +"): n=" + getN() + " r=" + coefficient);
+            } else {
+                coefficient = 1.0;
+            }
         }
     }
 
