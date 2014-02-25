@@ -9,15 +9,20 @@ public class Core {
     public static final Integer CORRELATIONS = 2;
 
     private Map<Integer, Thread> controllers;
+
     protected Core() {
         controllers = new HashMap<Integer, Thread>();
-        controllers.put(TEXTS, new com.github.alex_moon.noise.text.Controller());
-        controllers.put(TERMS, new com.github.alex_moon.noise.term.Controller());
-        controllers.put(CORRELATIONS, new com.github.alex_moon.noise.correlation.Controller());        
+        controllers
+                .put(TEXTS, new com.github.alex_moon.noise.text.Controller());
+        controllers
+                .put(TERMS, new com.github.alex_moon.noise.term.Controller());
+        controllers.put(CORRELATIONS,
+                new com.github.alex_moon.noise.correlation.Controller());
     }
 
     private static Core instance;
-    public static Core getInstance() {  // We all know the drill.
+
+    public static Core getInstance() { // We all know the drill.
         if (instance == null) {
             instance = new Core();
         }
@@ -31,5 +36,7 @@ public class Core {
         }
     }
 
-    public static Thread getController(Integer type) { return getInstance().controllers.get(type); }
+    public static Thread getController(Integer type) {
+        return getInstance().controllers.get(type);
+    }
 }

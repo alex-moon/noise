@@ -5,31 +5,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Updateable {
-	protected List<Updateable> listeners;
-	private Method doUpdateMethod;
-	
-	public Updateable() {
-		listeners = new ArrayList<Updateable>();
-	}
+    protected List<Updateable> listeners;
+    private Method doUpdateMethod;
 
-	public void update(Updateable sender) {
-    	try {
-			synchronized (this) {
-				doUpdate(sender);
-				for (Updateable listener : listeners) {
-					listener.update(this);
-				}
-			}
-	    } catch (Exception e) {
-    		e.printStackTrace();
-    	}
-	}
-	
-	public void listen(Updateable obj) {
-		if (!listeners.contains(obj)) {
-			listeners.add(obj);
-		}
-	}
-	
-	protected abstract void doUpdate(Updateable sender);
+    public Updateable() {
+        listeners = new ArrayList<Updateable>();
+    }
+
+    public void update(Updateable sender) {
+        try {
+            synchronized (this) {
+                doUpdate(sender);
+                for (Updateable listener : listeners) {
+                    listener.update(this);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void listen(Updateable obj) {
+        if (!listeners.contains(obj)) {
+            listeners.add(obj);
+        }
+    }
+
+    protected abstract void doUpdate(Updateable sender);
 }

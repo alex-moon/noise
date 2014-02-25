@@ -11,7 +11,7 @@ import com.github.alex_moon.noise.term.Term;
 public class Text extends Updateable {
     private String stringValue;
     private UUID uuid;
-    
+
     private Map<String, Double> proportions;
 
     public Text(String initialStringValue) {
@@ -29,29 +29,31 @@ public class Text extends Updateable {
         }
         proportions = new HashMap<String, Double>();
     }
-    
+
     public void doUpdate(Updateable sender) {
-    	Map<String, Integer> counts = new HashMap<String, Integer>();
-    	Integer total = 0;
+        Map<String, Integer> counts = new HashMap<String, Integer>();
+        Integer total = 0;
 
-    	for (String termString : asWordList()) {
-    		Integer count = 0;
-        	if (counts.containsKey(termString)) {
-        		count += counts.get(termString);
-        	}
-        	count ++; total ++;
-        	counts.put(termString, count);
-    	}
+        for (String termString : asWordList()) {
+            Integer count = 0;
+            if (counts.containsKey(termString)) {
+                count += counts.get(termString);
+            }
+            count++;
+            total++;
+            counts.put(termString, count);
+        }
 
-    	for (String termString : counts.keySet()) {
-    		Term term = Core.getTermController().getTerm(termString);
-    		proportions.put(termString, counts.get(termString).doubleValue() / total);
-    		listen(term);
-    	}
+        for (String termString : counts.keySet()) {
+            Term term = Core.getTermController().getTerm(termString);
+            proportions.put(termString, counts.get(termString).doubleValue()
+                    / total);
+            listen(term);
+        }
     }
-    
+
     public Double getProportion(String termString) {
-    	return proportions.get(termString);
+        return proportions.get(termString);
     }
 
     public String[] asWordList() {

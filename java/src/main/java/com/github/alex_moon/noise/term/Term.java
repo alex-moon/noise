@@ -20,51 +20,55 @@ public class Term extends Updateable {
     }
 
     /**
-     * @param lastProportion = the lastProportion of some text that is the term = term word count / total word count
+     * @param lastProportion
+     *            = the lastProportion of some text that is the term = term word
+     *            count / total word count
      */
     protected void doUpdate(Updateable text) {
-    	lastText = (Text)text;
-    	lastProportion = lastText.getProportion(this.termString);
+        lastText = (Text) text;
+        lastProportion = lastText.getProportion(this.termString);
         if (texts.contains(lastText)) {
             // @todo something?
-        	System.out.println("WARNING: text " + lastText.getUuid() + " reregistering for term '" + termString + "'");
+            System.out.println("WARNING: text " + lastText.getUuid()
+                    + " reregistering for term '" + termString + "'");
         } else {
             texts.add(lastText);
             Integer count = texts.size();
             lastMean = mean;
             lastStandardDeviation = standardDeviation;
             mean = mean + (lastProportion - mean) / count;
-            Double sumOfSquaredDifferences = (standardDeviation * standardDeviation) * (count-1) +
-            								 ((lastProportion - lastMean) * (lastProportion - mean));
+            Double sumOfSquaredDifferences = (standardDeviation * standardDeviation)
+                    * (count - 1)
+                    + ((lastProportion - lastMean) * (lastProportion - mean));
             standardDeviation = Math.sqrt(sumOfSquaredDifferences / count);
         }
     }
-    
+
     public Integer count() {
-    	return texts.size();
+        return texts.size();
     }
-    
+
     public Double getSd() {
-    	return standardDeviation;
+        return standardDeviation;
     }
-    
+
     public Double getMean() {
-    	return mean;
+        return mean;
     }
-    
+
     public Double getOldMean() {
-    	return lastMean;
+        return lastMean;
     }
-    
+
     public Double getOldSd() {
-    	return lastStandardDeviation;
+        return lastStandardDeviation;
     }
-    
+
     public List<Text> getTexts() {
-    	return texts;
+        return texts;
     }
-    
+
     public Double getProportion() {
-    	return lastProportion;
+        return lastProportion;
     }
 }

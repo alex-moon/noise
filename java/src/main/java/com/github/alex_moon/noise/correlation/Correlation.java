@@ -15,24 +15,24 @@ public class Correlation extends Updateable {
         a.listen(this);
         b.listen(this);
     }
-    
+
     public void doUpdate(Updateable sender) {
-    	Double covariance = coefficient * a.getOldSd() * b.getOldSd();
-    	covariance = covariance * getN() + a.getProportion() - a.getMean();
-    	covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();
-    	coefficient = covariance / (a.getSd() * b.getSd());
+        Double covariance = coefficient * a.getOldSd() * b.getOldSd();
+        covariance = covariance * getN() + a.getProportion() - a.getMean();
+        covariance = covariance * (b.getProportion() - b.getOldMean()) / getN();
+        coefficient = covariance / (a.getSd() * b.getSd());
     }
 
     private Integer getN() {
-    	if (n != null) {
-    		return n;
-    	}
-    	Integer count = 0;
-    	for(Text text : a.getTexts()) {
-    		if (b.getTexts().contains(text)) {
-    			count ++;
-    		}
-    	}
-    	return count;
+        if (n != null) {
+            return n;
+        }
+        Integer count = 0;
+        for (Text text : a.getTexts()) {
+            if (b.getTexts().contains(text)) {
+                count++;
+            }
+        }
+        return count;
     }
 }

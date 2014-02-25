@@ -31,10 +31,11 @@ public class Retriever extends Thread {
                 return;
             }
 
-            for (WatchEvent<?> event: key.pollEvents()) {
+            for (WatchEvent<?> event : key.pollEvents()) {
                 // we have new files
-                WatchEvent<Path> pathEvent = (WatchEvent<Path>)event;
-                Path filename = pathEvent.context();  // context() is the filename
+                WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
+                Path filename = pathEvent.context(); // context() is the
+                                                     // filename
                 Path file = textsPath.resolve(filename);
                 Text text = createTextFromFile(file);
                 text.update(null);
@@ -53,7 +54,7 @@ public class Retriever extends Thread {
             e.printStackTrace();
         }
 
-        String uuidString = file.toString();  // the filename is the UUID
+        String uuidString = file.toString(); // the filename is the UUID
         return new Text(contents, uuidString);
     }
 }
