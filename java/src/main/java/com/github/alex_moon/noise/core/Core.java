@@ -12,12 +12,9 @@ public class Core {
 
     protected Core() {
         controllers = new HashMap<Integer, Thread>();
-        controllers
-                .put(TEXTS, new com.github.alex_moon.noise.text.Controller());
-        controllers
-                .put(TERMS, new com.github.alex_moon.noise.term.Controller());
-        controllers.put(CORRELATIONS,
-                new com.github.alex_moon.noise.correlation.Controller());
+        controllers.put(TEXTS, new com.github.alex_moon.noise.text.Controller());
+        controllers.put(TERMS, new com.github.alex_moon.noise.term.Controller());
+        controllers.put(CORRELATIONS, new com.github.alex_moon.noise.correlation.Controller());
     }
 
     private static Core instance;
@@ -38,5 +35,17 @@ public class Core {
 
     public static Thread getController(Integer type) {
         return getInstance().controllers.get(type);
+    }
+    
+    public static com.github.alex_moon.noise.text.Controller getTextController() {
+        return (com.github.alex_moon.noise.text.Controller) getController(TEXTS);
+    }
+    
+    public static com.github.alex_moon.noise.term.Controller getTermController() {
+        return (com.github.alex_moon.noise.term.Controller) getController(TERMS);
+    }
+
+    public static com.github.alex_moon.noise.correlation.Controller getCorrelationController() {
+        return (com.github.alex_moon.noise.correlation.Controller) getController(CORRELATIONS);
     }
 }
