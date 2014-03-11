@@ -21,11 +21,12 @@ public class Correlation extends Updateable {
         if (a.getLastText() == b.getLastText()) {
             Integer n = getN();
             if (n > 2) {
+                Double oldCoefficient = coefficient;
+                Double oldCovariance = oldCoefficient * a.getOldSd() * b.getOldSd();
                 Double aDelta = a.getProportion() - a.getOldMean();
                 Double bDelta = b.getProportion() - b.getOldMean();
-                Double covariance = n * coefficient * a.getOldSd() * b.getOldSd() +
-                                    n * aDelta * bDelta / (n + 1);
-                coefficient = covariance / (a.getSd() * b.getSd());
+                Double newCovariance = oldCovariance + (n-1) * aDelta * bDelta / n;
+                coefficient = newCovariance / (a.getSd() * b.getSd());
                 if (a.toString() == b.toString()) System.out.println("Term '" + a + "' (sd=" + a.getSd() + ") and '" + b + "' (sd="+ b.getSd() +"): n=" + getN() + " r=" + coefficient);
             } else {
                 coefficient = 1.0;
