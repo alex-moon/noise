@@ -23,13 +23,9 @@ public class Correlation extends Updateable {
             if (n > 2) {
                 Double aDelta = a.getProportion() - a.getOldMean();
                 Double bDelta = b.getProportion() - b.getOldMean();
-                Double aMean = a.getOldMean() + aDelta / (n + 1);
-                Double bMean = b.getOldMean() + bDelta / (n + 1);
-                System.out.println("New mean for " + a + " should be " + aMean + " is actually " + a.getMean());
-                System.out.println("New mean for " + b + " should be " + bMean + " is actually " + b.getMean());
                 Double covariance = n * coefficient * a.getOldSd() * b.getOldSd() +
                                     n * aDelta * bDelta / (n + 1);
-                coefficient = covariance / (a.getSd() * b.getSd()); // should these be oldSd()?
+                coefficient = covariance / (a.getSd() * b.getSd());
                 if (a.toString() == b.toString()) System.out.println("Term '" + a + "' (sd=" + a.getSd() + ") and '" + b + "' (sd="+ b.getSd() +"): n=" + getN() + " r=" + coefficient);
             } else {
                 coefficient = 1.0;
