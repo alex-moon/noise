@@ -1,5 +1,6 @@
 package com.github.alex_moon.noise.correlation;
 
+import com.github.alex_moon.noise.core.Core;
 import com.github.alex_moon.noise.core.Updateable;
 import com.github.alex_moon.noise.term.Term;
 import com.github.alex_moon.noise.text.Text;
@@ -16,6 +17,7 @@ public class Correlation extends Updateable {
         b.listen(this);
     }
 
+    @Override
     public void doUpdate(Updateable sender) {
         // only update the correlation if both terms have been hit by the same text
         if (a.getLastText() == b.getLastText()) {
@@ -27,9 +29,18 @@ public class Correlation extends Updateable {
                 Double bDelta = b.getProportion() - b.getOldMean();
                 Double newCovariance = oldCovariance + (n-1) * aDelta * bDelta / n;
                 coefficient = newCovariance / (a.getSd() * b.getSd());
-                if (a.toString() == b.toString()) System.out.println("Term '" + a + "' (sd=" + a.getSd() + ") and '" + b + "' (sd="+ b.getSd() +"): n=" + getN() + " r=" + coefficient);
             } else {
                 coefficient = 1.0;
+            }
+
+            // now we want to create/update all the relevant Facts, get 'em listen()ing
+            for (Term c : Core.getCorrelationController().getThirdTerms(a, b)) {
+                // a "third term" c is any term correlated to two given correlated terms
+                // we use these to create/update facts - for any three correlated terms
+                // there are three facts, one each for each "primary term" (see Fact class)
+                listen(Core.getFactController().getFact(a, b, c));
+                listen(Core.getFactController().getFact(b, a, c));
+                listen(Core.getFactController().getFact(c, a, b));
             }
         }
     }

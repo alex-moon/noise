@@ -26,6 +26,7 @@ public class Term extends Updateable {
      *            the amount of the last encountered text this term accounts for by itself 
      *            i.e. no. occurrences of this word / no. words in the whole text
      */
+    @Override
     protected void doUpdate(Updateable text) {
         lastText = (Text) text;
         lastProportion = lastText.getProportion(this.termString);
@@ -37,6 +38,9 @@ public class Term extends Updateable {
 
             // first handle correlations
             for (Term correlate : lastText.getCorrelates(this)) {
+                if (this == correlate) {
+                    continue;
+                }
                 Core.getCorrelationController().getCorrelation(this, correlate);
             }
 
