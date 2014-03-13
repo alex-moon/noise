@@ -17,7 +17,11 @@ public class Controller extends Thread {
     }
 
     public Fact getFact(Term primaryTerm, Term x, Term y) {
-        if (factMap.containsKey(primaryTerm) && factMap.get(primaryTerm).containsKey(x)) {
+        if (
+            factMap.containsKey(primaryTerm) && 
+            factMap.get(primaryTerm).containsKey(x) &&
+            factMap.get(primaryTerm).get(x).containsKey(y)
+        ) {
             return factMap.get(primaryTerm).get(x).get(y);
         }
         return addFact(primaryTerm, x, y);

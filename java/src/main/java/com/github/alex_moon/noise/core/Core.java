@@ -7,14 +7,16 @@ public class Core {
     public static final Integer TEXTS = 0;
     public static final Integer TERMS = 1;
     public static final Integer CORRELATIONS = 2;
+    public static final Integer FACTS = 3;
 
     private Map<Integer, Thread> controllers;
 
-    protected Core() {
+    protected Core() { // Something something singleton yada yada yada...
         controllers = new HashMap<Integer, Thread>();
         controllers.put(TEXTS, new com.github.alex_moon.noise.text.Controller());
         controllers.put(TERMS, new com.github.alex_moon.noise.term.Controller());
         controllers.put(CORRELATIONS, new com.github.alex_moon.noise.correlation.Controller());
+        controllers.put(FACTS, new com.github.alex_moon.noise.fact.Controller());
     }
 
     private static Core instance;
@@ -47,5 +49,9 @@ public class Core {
 
     public static com.github.alex_moon.noise.correlation.Controller getCorrelationController() {
         return (com.github.alex_moon.noise.correlation.Controller) getController(CORRELATIONS);
+    }
+
+    public static com.github.alex_moon.noise.fact.Controller getFactController() {
+        return (com.github.alex_moon.noise.fact.Controller) getController(FACTS);
     }
 }

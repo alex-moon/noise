@@ -48,4 +48,10 @@ public class Controller extends Thread {
         }
         return addCorrelation(a, b);
     }
+    
+    public List<Term> getThirdTerms(Term a, Term b) {
+        List<Term> cs = new ArrayList<Term>(a.getCorrelates());
+        cs.retainAll(b.getCorrelates());
+        return cs;
+    }
 }

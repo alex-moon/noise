@@ -57,4 +57,8 @@ public class Correlation extends Updateable {
         }
         return count;
     }
+    
+    public Double doubleValue() {
+        return coefficient;
+    }
 }

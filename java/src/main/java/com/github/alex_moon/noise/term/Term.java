@@ -13,6 +13,7 @@ public class Term extends Updateable {
     private Double mean = 0.0;
     private Double standardDeviation = 0.0;
     private List<Text> texts = new ArrayList<Text>();
+    private List<Term> correlates = new ArrayList<Term>();
 
     private Text lastText;
     private Double lastMean, lastStandardDeviation, lastProportion;
@@ -40,6 +41,11 @@ public class Term extends Updateable {
             for (Term correlate : lastText.getCorrelates(this)) {
                 if (this == correlate) {
                     continue;
+                }
+                
+                // keep a list of correlates for the facts module
+                if (!correlates.contains(correlate)) {
+                    correlates.add(correlate);
                 }
                 Core.getCorrelationController().getCorrelation(this, correlate);
             }
@@ -76,6 +82,10 @@ public class Term extends Updateable {
 
     public List<Text> getTexts() {
         return texts;
+    }
+    
+    public List<Term> getCorrelates() {
+        return correlates;
     }
 
     public Text getLastText() {
