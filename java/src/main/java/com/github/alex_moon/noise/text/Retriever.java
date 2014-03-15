@@ -34,11 +34,13 @@ public class Retriever extends Thread {
             for (WatchEvent<?> event : key.pollEvents()) {
                 // we have new files
                 WatchEvent<Path> pathEvent = (WatchEvent<Path>) event;
-                Path filename = pathEvent.context(); // context() is the
-                                                     // filename
-                Path file = textsPath.resolve(filename);
-                Text text = createTextFromFile(file);
-                text.update(null);
+                Path filename = pathEvent.context(); // context() is the filename
+                System.out.println(filename);
+                if (filename != null) {
+                    Path file = textsPath.resolve(filename);
+                    Text text = createTextFromFile(file);
+                    text.update(null);
+                }
             }
 
             key.reset();
