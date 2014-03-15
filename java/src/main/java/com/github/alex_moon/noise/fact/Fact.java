@@ -37,8 +37,8 @@ public class Fact extends Updateable {
         );
 
         // in reality these values will need to be tweaked and applied to Interests rather than Facts
-        if (multivariateCorrelation > 0.5 && multivariateCorrelation < 0.9) {
-            System.out.println("We have a fact! " + primaryTerm + " -> " + x + ":" + y);
+        if (multivariateCorrelation > 0.8 && multivariateCorrelation < 0.99) {
+            System.out.println("We have a fact! " + x + ":" + y + " -> " + primaryTerm + " @ " + multivariateCorrelation);
         }
     }
 
