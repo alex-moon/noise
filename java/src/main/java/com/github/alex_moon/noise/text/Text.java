@@ -68,7 +68,16 @@ public class Text extends Updateable {
     public String[] asWordList() {
         String result = stringValue.replaceAll("[^a-zA-Z0-9]+", " ");
         result = result.toLowerCase();
-        return result.split(" ");
+        String[] terms = result.split(" ");
+        List<String> significantTerms = new ArrayList<String>();
+        for (int i = 0; i < terms.length; i++) {
+            if (! Core.getInstance().isStopword(terms[i])
+             && ! "".equals(terms[i])
+             && ! (terms[i].length() < 3)) {
+                significantTerms.add(terms[i]);
+            }
+        }
+        return significantTerms.toArray(new String[significantTerms.size()]);
     }
 
     public String toString() {

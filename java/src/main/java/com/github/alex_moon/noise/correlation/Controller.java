@@ -16,7 +16,8 @@ public class Controller extends Thread {
         correlationMap = new HashMap<Term, Map<Term, Correlation>>();
     }
 
-    // @todo the symmetry problem here has been solved, I'm sure, more efficiently than this by someone else...
+    // @todo the symmetry problem here has been solved, I'm sure, more
+    // efficiently than this by someone else...
     private Correlation addCorrelation(Term a, Term b) {
         Correlation correlation = new Correlation(a, b);
         correlations.add(correlation);
@@ -30,7 +31,8 @@ public class Controller extends Thread {
             correlationMap.put(a, correlationMapRow);
         }
 
-        // second, map from b back to a - this ensures a lookup on either will get the same object
+        // second, map from b back to a - this ensures a lookup on either will
+        // get the same object
         if (correlationMap.containsKey(b)) {
             correlationMap.get(b).put(a, correlation);
         } else {
@@ -48,7 +50,7 @@ public class Controller extends Thread {
         }
         return addCorrelation(a, b);
     }
-    
+
     public List<Term> getThirdTerms(Term a, Term b) {
         List<Term> cs = new ArrayList<Term>(a.getCorrelates());
         cs.retainAll(b.getCorrelates());
