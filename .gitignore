@@ -11,3 +11,4 @@ go/src/github.com/garyburd
 *.class
 *.sh
 play.*
+text/*
