@@ -30,7 +30,7 @@ public class Core {
             }
             s.close();
         } catch(FileNotFoundException e) {
-            System.out.println("OH FUCK YOUR STOPWORDS MISSING DIPSHIT");
+            System.out.println(stopwordsFile + " couldn't be found. Are you sure it's there?");
             System.exit(1);
         }
         
