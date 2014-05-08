@@ -12,13 +12,7 @@ public class FuckServlet extends HttpServlet {
 
         res.setContentType("text/html");
         PrintWriter out = res.getWriter();
-        out.println("");
-        out.println("MyServlet");
-        out.println("\t");
-        out.println("");
-        out.println("");
-        out.println("Suck my peeny :)");
-        out.println("");
+        out.println("Well now...");
         out.close();
     }
 }
