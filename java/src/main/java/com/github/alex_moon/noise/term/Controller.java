@@ -14,13 +14,18 @@ public class Controller extends Thread {
 
     public Term getTerm(String termString, Text text) {
         Term term = null;
+
         if (!terms.containsKey(termString)) {
             term = new Term(termString);
             terms.put(termString, term);
         } else {
             term = terms.get(termString);
         }
-        text.listen(term);
+
+        if (text != null) {
+            text.listen(term);
+        }
+
         return term;
     }
 }

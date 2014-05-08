@@ -10,10 +10,23 @@ import com.github.alex_moon.noise.term.Term;
 public class Controller extends Thread {
     private List<Fact> facts;
     private Map<Term, Map<Term, Map<Term, Fact>>> factMap;
+    
+    private Map<Term, List<Fact>> factsForPrimaryTermCache;
 
     public void run() {
         facts = new ArrayList<Fact>();
         factMap = new HashMap<Term, Map<Term, Map<Term, Fact>>>();
+    }
+    
+    public List<Fact> getFactsForPrimaryTerm(Term primaryTerm) {
+        List<Fact> factsForPrimaryTerm = new ArrayList<Fact>();
+        if (factMap.containsKey(primaryTerm)) {
+            for (Map<Term, Fact> factValues: factMap.get(primaryTerm).values()) {
+                factsForPrimaryTerm.addAll(factValues.values());
+            }
+        }
+        // factsForPrimaryTermCache.set(primaryTerm, factsForPrimaryTerm);  // @todo expire on addFact(), instantiate on run(), etc.
+        return factsForPrimaryTerm;
     }
 
     public Fact getFact(Term primaryTerm, Term x, Term y) {
