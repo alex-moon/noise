@@ -1,0 +1,1 @@
+<Context path="/noise" docBase="/opt/noise/noise.war" debug="2" privileged="true" allowLinking="true" crossContext="true" />
