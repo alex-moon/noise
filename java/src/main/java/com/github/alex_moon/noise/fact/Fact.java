@@ -1,5 +1,11 @@
 package com.github.alex_moon.noise.fact;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.simple.JSONObject;
+
 import com.github.alex_moon.noise.core.Core;
 import com.github.alex_moon.noise.core.Updateable;
 import com.github.alex_moon.noise.correlation.Correlation;
@@ -48,5 +54,21 @@ public class Fact extends Updateable {
     
     public Term getPrimaryTerm() {
         return primaryTerm;
+    }
+    
+    public String toString() {
+        return "[Fact " + x + ":" + y + " -> " + primaryTerm + " @ " + multivariateCorrelation + "]";
+    }
+    
+    public JSONObject toJson() {
+        // returns a JSON string for terms and multivariate correlations
+        // e.g. [{x: x, y: y, mvc: multivariateCorrelation}, ...]
+        JSONObject result = new JSONObject();
+        
+        result.put("x", x.toString());
+        result.put("y", y.toString());
+        result.put("mvc", doubleValue());
+        
+        return result;
     }
 }

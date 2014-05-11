@@ -1,11 +1,11 @@
 <web-app version="2.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/j2ee" xsi:schemalocation="http:/java.sun.com/dtd/web-app_2_3.dtd">
   <servlet>
     <servlet-name>Noise</servlet-name>
-    <servlet-class>Noise</servlet-class>
+    <servlet-class>com.github.alex_moon.noise.Noise</servlet-class>
   </servlet>
 
   <servlet-mapping>
     <servlet-name>Noise</servlet-name>
-    <url-pattern>/noise</url-pattern>
+    <url-pattern>/</url-pattern>
   </servlet-mapping>
 </web-app>

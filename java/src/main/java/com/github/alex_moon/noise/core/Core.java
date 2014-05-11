@@ -47,6 +47,7 @@ public class Core {
     public static Core getInstance()  { // We all know the drill.
         if (instance == null) {
             instance = new Core();
+            instance.run();  // so far I can't think of a use case where we don't need it running...
         }
         return instance;
     }
