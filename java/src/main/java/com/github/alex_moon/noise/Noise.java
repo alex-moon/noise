@@ -20,7 +20,7 @@ import com.github.alex_moon.noise.term.Term;
 public class Noise extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse res)
                     throws IOException, ServletException {
-        res.setContentType("text/html");
+        res.setContentType("application/json");
         PrintWriter out = res.getWriter();
 
         String queryString = req.getParameter("q");
