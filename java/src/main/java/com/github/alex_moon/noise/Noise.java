@@ -20,13 +20,13 @@ import com.github.alex_moon.noise.term.Term;
 public class Noise extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse res)
                     throws IOException, ServletException {
-        res.setContentType("application/json");
         PrintWriter out = res.getWriter();
-
         String queryString = req.getParameter("q");
         if (queryString == null) {
+            res.setContentType("text/html");
             out.println("<form method='GET' action='.'><input type='text' value='search' name='q' /><input type='submit' value='Search!' /></form>");
         } else {
+            res.setContentType("application/json");
             Term query = Core.getTermController().getTerm(queryString, null);
             List<Fact> facts = Core.getFactController().getFactsForPrimaryTerm(query);
             List<JSONObject> factsToJson = new ArrayList<JSONObject>();
