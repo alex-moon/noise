@@ -22,7 +22,11 @@ public class Controller extends Thread {
         List<Fact> factsForPrimaryTerm = new ArrayList<Fact>();
         if (factMap.containsKey(primaryTerm)) {
             for (Map<Term, Fact> factValues: factMap.get(primaryTerm).values()) {
-                factsForPrimaryTerm.addAll(factValues.values());
+                for (Fact fact : factValues.values()) {
+                    if (! fact.doubleValue().isNaN() && ! fact.doubleValue().isInfinite()) {
+                        factsForPrimaryTerm.add(fact);
+                    }
+                }
             }
         }
         // factsForPrimaryTermCache.set(primaryTerm, factsForPrimaryTerm);  // @todo expire on addFact(), instantiate on run(), etc.

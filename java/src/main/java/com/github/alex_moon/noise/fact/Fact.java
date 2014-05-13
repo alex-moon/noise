@@ -1,6 +1,9 @@
 package com.github.alex_moon.noise.fact;
 
-import org.json.simple.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.codehaus.jackson.annotate.JsonValue;
 
 import com.github.alex_moon.noise.core.Core;
 import com.github.alex_moon.noise.core.Updateable;
@@ -38,9 +41,8 @@ public class Fact extends Updateable {
             1 - xy2
         );
 
-        // in reality these values will need to be tweaked and applied to Interests rather than Facts
-        if (multivariateCorrelation > 0.65 && multivariateCorrelation < 0.85) {
-            System.out.println("We have a fact! " + x + ":" + y + " -> " + primaryTerm + " @ " + multivariateCorrelation);
+        if (! multivariateCorrelation.isNaN() && ! multivariateCorrelation.isInfinite()) {
+            System.out.println(toString());
         }
     }
 
@@ -52,14 +54,16 @@ public class Fact extends Updateable {
         return primaryTerm;
     }
     
-    public Term getX() {
-        return x;
+    @JsonValue
+    public Map<String, Object> serialise() {
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("primary_term", primaryTerm.toString());
+        result.put("x", x.toString());
+        result.put("y", y.toString());
+        result.put("mvc", multivariateCorrelation);
+        return result;
     }
-    
-    public Term getY() {
-        return y;
-    }
-    
+
     public String toString() {
         return "[Fact " + x + ":" + y + " -> " + primaryTerm + " @ " + multivariateCorrelation + "]";
     }
